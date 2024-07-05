@@ -13,6 +13,10 @@ import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
+/**
+ * 可手势缩放移动双击缩放ImageView
+ *
+ */
 
 public class MapView extends androidx.appcompat.widget.AppCompatImageView implements ViewTreeObserver.OnGlobalLayoutListener, ScaleGestureDetector.OnScaleGestureListener {
 

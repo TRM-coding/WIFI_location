@@ -49,7 +49,9 @@ public class Login extends AppCompatActivity {
                         try {
                             // 创建URL对象
                             Log.d("Network", phone + " " + pwd);
-                            URL url = new URL("http://10.60.136.41:5000/login");
+                            // 10.60.136.41:5000
+                            // 172.17.0.3:8080
+                            URL url = new URL(getApplicationContext().getString(R.string.base_url) + "login");
                             // 创建HttpURLConnection对象
                             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                             // 设置请求方法
@@ -64,7 +66,7 @@ public class Login extends AppCompatActivity {
                             JSONObject jsonParam = new JSONObject();
                             // 添加你的数据
                             jsonParam.put("phone", phone);
-                            jsonParam.put("pwd", pwd);
+                            jsonParam.put("password", pwd);
                             // 写入数据
                             os.write(jsonParam.toString().getBytes());
                             os.flush();

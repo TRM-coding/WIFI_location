@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.TranslateAnimation;
@@ -11,8 +12,12 @@ import android.widget.ImageView;
 
 import com.example.wifilocation.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 地图界面承载容器，ViewGroup
+ **/
 
 public class MapContainer extends ViewGroup implements MapView.OnMapStateChangedListner {
     /**
@@ -129,20 +134,37 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
     public void setMarkers(List<Marker> markers) {
         this.mMarkers = markers;
 
-        /*移除上次传入的所有marker(即移除已显示的markers)*/
+        // 创建一个列表来收集所有需要移除的视图
+        List<View> viewsToRemove = new ArrayList<>();
+
+        /* 移除上次传入的所有marker(即移除已显示的markers) */
         int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
-            Object tag = child.getTag(R.id.is_marker);
-            if (tag instanceof Boolean && ((Boolean) tag).booleanValue()) {
-                //确认当前child是markerView即从ViewGroup中移除
-                removeView(child);
+            if (child != null) {
+                String childClassName = child.getClass().getSimpleName();
+                Object tag = child.getTag(R.id.is_marker);
+                if (tag instanceof Boolean && ((Boolean) tag).booleanValue()) {
+                    // 确认当前child是markerView即添加到列表中准备移除
+                    Log.d("MapContainer", "Removing marker: " + childClassName);
+                    viewsToRemove.add(child);
+                } else {
+                    Log.d("MapContainer", "Child at index " + i + " (" + childClassName + ") is not a marker");
+                }
+            } else {
+                Log.d("MapContainer", "Child at index " + i + " is null");
             }
-
         }
-        //初始化markers
+
+        // 统一移除所有收集到的视图
+        for (View view : viewsToRemove) {
+            removeView(view);
+        }
+
+        // 初始化markers
         initMarkers();
     }
+
 
     /**
      * 初始化所有的标记图标（marker）

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">10.60.136.41</domain>
-    </domain-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <!-- Optional: Add your trusted certificates here if needed -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
 </network-security-config>

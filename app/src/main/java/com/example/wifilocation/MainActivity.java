@@ -1,5 +1,6 @@
 package com.example.wifilocation;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     private EditText editMsg;
@@ -40,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         editMsg = findViewById(R.id.msg);
-        queryButton = findViewById(R.id.query);
-        // 登录按钮 提交数据
+        queryButton = findViewById(R.id.chat);
+
         queryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             // 创建URL对象
                             Log.d("Network", msg);
-                            URL url = new URL("http://10.60.136.41:5000/query");
+                            URL url = new URL(getApplicationContext().getString(R.string.base_url) + "chat");
                             // 创建HttpURLConnection对象
                             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                             // 设置请求方法
@@ -87,7 +90,13 @@ public class MainActivity extends AppCompatActivity {
                                 in.close();
 
                                 // 输出收到的完整 JSON 字符串
-                                Log.d("Network", "Received JSON: " + response.toString());
+                                String jsonString = response.toString();
+                                Log.d("Network", "Received JSON: " + jsonString);
+
+                                // 解码 Unicode 转义字符
+                                String decodedJsonString = decodeUnicode(jsonString);
+                                Log.d("Network", "Decoded JSON: " + decodedJsonString);
+
 
                                 // 登录成功后跳转到新的 Activity
                                 Intent intent = new Intent(MainActivity.this, Location.class);
@@ -117,5 +126,23 @@ public class MainActivity extends AppCompatActivity {
                 }).start();
             }
         });
+
+    }
+
+    // 完成解码Unicode
+    public static String decodeUnicode(String unicode) {
+        StringBuilder sb = new StringBuilder();
+        Pattern pattern = Pattern.compile("(\\\\u(\\p{XDigit}{4}))");
+        Matcher matcher = pattern.matcher(unicode);
+        int lastEnd = 0;
+        while (matcher.find()) {
+            sb.append(unicode, lastEnd, matcher.start());
+            String code = matcher.group(2);
+            char ch = (char) Integer.parseInt(code, 16);
+            sb.append(ch);
+            lastEnd = matcher.end();
+        }
+        sb.append(unicode.substring(lastEnd));
+        return sb.toString();
     }
 }

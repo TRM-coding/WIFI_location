@@ -49,7 +49,7 @@ public class Register extends AppCompatActivity {
                         try {
                             // 创建URL对象
                             Log.d("Network", phone + " " + pwd + " " + pwd2);
-                            URL url = new URL("http://10.60.136.41:5000/register");
+                            URL url = new URL(getApplicationContext().getString(R.string.base_url)+"register");
                             // 创建HttpURLConnection对象
                             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                             // 设置请求方法
@@ -64,8 +64,8 @@ public class Register extends AppCompatActivity {
                             JSONObject jsonParam = new JSONObject();
                             // 添加你的数据
                             jsonParam.put("phone", phone);
-                            jsonParam.put("pwd", pwd);
-                            jsonParam.put("pwd2", pwd2);
+                            jsonParam.put("password", pwd);
+                            // jsonParam.put("pwd2", pwd2);
                             // 写入数据
                             os.write(jsonParam.toString().getBytes());
                             os.flush();
