@@ -1,6 +1,6 @@
 package com.example.wifilocation;
 
-import static com.example.wifilocation.MainActivity.decodeUnicode;
+
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -107,8 +107,8 @@ public class Location extends AppCompatActivity implements MapContainer.OnMarker
                                 Log.d("Network", "Received JSON: " + jsonString);
 
                                 // 解码 Unicode 转义字符
-                                String decodedJsonString = decodeUnicode(jsonString);
-                                Log.d("Network", "Decoded JSON: " + decodedJsonString);
+                                // String decodedJsonString = decodeUnicode(jsonString);
+                                // Log.d("Network", "Decoded JSON: " + decodedJsonString);
 
                                 try {
                                     // 将响应转换为 JSONObject

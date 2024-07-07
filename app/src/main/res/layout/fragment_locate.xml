@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 自定义的 MapContainer -->
+    <com.example.imgmarker.MapContainer
+        android:id="@+id/mc_map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:marker_anim_duration="1200"
+        app:marker_height="94dp"
+        app:marker_width="66dp" />
+
+    <!-- 添加的 LinearLayout，位于 MapContainer 之上 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"> <!-- 父布局居中 -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"> <!-- 子布局居中 -->
+
+            <EditText
+                android:id="@+id/msg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:layout_weight="1"
+                android:hint="请输入查询信息：" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="194dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"> <!-- 水平居中 -->
+
+            <Button
+                android:id="@+id/chat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="查询" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
