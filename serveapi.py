@@ -89,6 +89,7 @@ def navigate():
     road_list=navi.spfa(req)
     print(road_list)
     ans={str(i): v for i, v in enumerate(road_list)}
+    print(ans)
     return jsonify(ans) 
     
 

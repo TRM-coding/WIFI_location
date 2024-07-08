@@ -1,16 +1,20 @@
 import torch
-from modelscope import AutoModel,AutoTokenizer,snapshot_download
-import pymysql
-
+from modelscope import snapshot_download
+from transformers import AutoModel,AutoTokenizer
 from flask import Flask,request,jsonify
 from LLMkernel import LLMkernel
+import os
 
 app=Flask(__name__)
-model_dir=snapshot_download("ZhipuAI/glm-4-9b-chat",cache_dir='./glm4')
+os.environ["CUDA_VISIBLE_DEVICES"]=','.join(map(str,[0,1]))
+
+
+model_dir="./glm4/ZhipuAI/glm-4-9b-chat"
+
 with torch.no_grad():
-    LLM=AutoModel.from_pretrained(model_dir,trust_remote_code=True).half().cuda()
+    LLM=AutoModel.from_pretrained(model_dir,trust_remote_code=True,device_map='auto').float().eval()
 tokenizer=AutoTokenizer.from_pretrained(model_dir,trust_remote_code=True)
-LLM=LLM.eval()
+
 
 @app.route("/kernel_chat",methods=["POST"])
 def predict():
