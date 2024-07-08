@@ -4,6 +4,7 @@ import pymysql
 
 class kNN():
     def __init__(self):
+        self.dim=123
         print('init')
 
     def build(self):
@@ -43,10 +44,10 @@ class kNN():
             database='WIFI'
         )
         cursor=conn.cursor()
-        inX=np.full((1,113),-127)
+        inX=np.full((1,self.dim),-127)
         for i,wifimac in enumerate(wifimacs,0):
             sql='select id from wifimac where mac=%s'
-            print("mac:"+'a'+wifimac.replace(':','_'))
+            # print("mac:"+'a'+wifimac.replace(':','_'))
             cursor.execute(sql,wifimac)
             result=cursor.fetchall()
             inX[0][result[0][0]-1]=wifirssi[i]
@@ -57,7 +58,7 @@ class kNN():
         sortedDistIndicies=distances.argsort()
         # print(sortedDistIndicies)
         sql='select locx,locy,locz from locationdata where locid=%s'
-        cursor.execute(sql,sortedDistIndicies[0]+1)
+        cursor.execute(sql,sortedDistIndicies[0])
         result=cursor.fetchall()
         ans={'x':result[0][0],'y':result[0][1],'z':result[0][2]}
         cursor.close()
