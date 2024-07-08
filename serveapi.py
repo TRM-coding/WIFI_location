@@ -97,9 +97,16 @@ def navigate():
 @app.route("/location",methods=["POST"])
 def location():
     req=request.get_json()
-    mac_list=req['mac_list']
-    mac_strength=req['mac_strength']
-    knn=kNN
+    # req=json.loads(jsonify(req))
+    # mac_list=req['mac_list']
+    # mac_strength=req['mac_strength']
+    knn=kNN.kNN()
+    knn.build()
+    res=knn.classify(req)
+    print(res)
+    return jsonify(res)
+
+
 
 
 
