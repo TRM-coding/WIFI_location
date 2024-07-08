@@ -4,6 +4,7 @@ import wifiInfController
 import json
 import requests
 import navigator
+import kNN
 app=Flask(__name__)
 
 navi=navigator.navigator()
@@ -98,6 +99,7 @@ def location():
     req=request.get_json()
     mac_list=req['mac_list']
     mac_strength=req['mac_strength']
+    knn=kNN
 
 
 

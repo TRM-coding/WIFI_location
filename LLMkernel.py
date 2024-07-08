@@ -9,7 +9,7 @@ class LLMkernel:
         self.tokenizer=tokenizer
     
     def getBooks(self,json_data):
-        content=json_data['promperature']
+        content=json_data['prompt']
         temp=json_data['temperature']
         temp=float(temp)
         conn=pymysql.connect(
