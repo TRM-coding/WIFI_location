@@ -3,7 +3,11 @@ import PermissionController
 import wifiInfController
 import json
 import requests
+import navigator
 app=Flask(__name__)
+
+navi=navigator.navigator()
+navi.build()
 
 
 @app.route('/postWifiInfor', methods=['POST'])
@@ -73,6 +77,33 @@ def book():
     respond=requests.post(url,data=json_obj,headers=headers) 
     
     return jsonify(respond.json())
+
+@app.route("/navigate",methods=["POST"])
+def navigate():
+    req=request.get_json()
+    # book_id=req['bookid']
+    # x=req['sx']
+    # y=req['sy']
+    # z=req['sz']
+    road_list=navi.spfa(req)
+    print(road_list)
+    ans={str(i): v for i, v in enumerate(road_list)}
+    return jsonify(ans) 
+    
+
+
+
+@app.route("/location",methods=["POST"])
+def location():
+    req=request.get_json()
+    mac_list=req['mac_list']
+    mac_strength=req['mac_strength']
+
+
+
+
+
+
 # @app.route('getRoad', methods=['POST'])
 # def getRoad():
 #     data = request.get_json()

@@ -2,7 +2,7 @@ import requests
 import json
 import time
 
-url="http://i-2.gpushare.com:40003/book"
+url="http://i-2.gpushare.com:40003/navigate"
 
 prompt="请帮我找找物理学的书"
 
@@ -10,17 +10,23 @@ prompt="请帮我找找物理学的书"
 #          "password":"q3Wh7Zkx"
 #          }
 
-json_dt={
-    "msg":prompt,
-    "temperature":0.5
-}
+# json_dt={
+#     "msg":prompt,
+#     "temperature":0.5
+# }
 
-json_obj=json.dumps(json_dt)
+dict={
+    "sx":1,
+    "sy":1,
+    "sz":4,
+    "bookid":3}
+
+json_obj=json.dumps(dict)
 headers = {'Content-Type': 'application/json'}
 since=time.time()
-requests.post(url,data=json_obj,headers=headers)                                                                          
+req=requests.post(url,data=json_obj,headers=headers)                                                                          
 
-# print(response.json())
+print(req.json())
 print(f"响应时间：{time.time()-since}")
 
 # ssh -p 42922 root@i-1.gpushare.com

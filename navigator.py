@@ -10,8 +10,8 @@ class navigator:
         conn=pymysql.connect(
             host='localhost',
             user='root',
-            password='rhj123456',
-            database='LP'
+            password='123',
+            database='WIFI'
         )
         cursor=conn.cursor()
         sql='select * from points'
@@ -26,21 +26,27 @@ class navigator:
             # self.posdic[result[0]]=(result[1],result[2],result[3],result[4])
             
     def spfa(self,input_data):
-        json=js.loads(input_data)
+        # json=js.loads(input_data)
+        json=input_data
         s=(json['sx'],json['sy'],json['sz'])
         conn=pymysql.connect(
             host='localhost',
             user='root',
-            password='rhj123456',
-            database='LP'
+            password='123',
+            database='WIFI'
         )
         cursor=conn.cursor()
-        sql='select bookx,booky,bookz from books where bookid=%s'
+        # sql='select bookx,booky,bookz from books where bookid=%s'
+        sql='select Location from books where ID=%s'
         cursor.execute(sql,(json['bookid']))
         results=cursor.fetchall()
+        print(results)
+        from ast import literal_eval
+        results= literal_eval(results[0][0])
+
         cursor.close()
         conn.close()
-        t=results[0]
+        t=results
         dir=[[1,0],[-1,0],[0,-1],[0,1]]
         q=[]
         vis={}
@@ -86,5 +92,5 @@ class navigator:
             t=pre[t]
         road.append(s)
         road.reverse()
-        ans={str(i): v for i, v in enumerate(road)}
-        return js.dumps(ans)
+        # ans={str(i): v for i, v in enumerate(road)}
+        return road
