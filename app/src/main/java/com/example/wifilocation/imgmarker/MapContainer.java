@@ -1,4 +1,4 @@
-package com.example.imgmarker;
+package com.example.wifilocation.imgmarker;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -27,7 +27,8 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
      */
     private boolean isFirstLayout = true;
     private Context mContext;//上下文
-    private int MARKER_ANIM_DURATION;//动画时间
+    private boolean isChanged = false;
+    //private int MARKER_ANIM_DURATION;//动画时间
     private int MARKER_WIDTH; //marker宽度
     private int MARKER_HEIGHT; //marker高度
     private boolean isAnimFinished = false;
@@ -61,7 +62,7 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
         TypedArray a = mContext.obtainStyledAttributes(attrs, R.styleable.MapView);
         MARKER_WIDTH = a.getDimensionPixelOffset(R.styleable.MapView_marker_width, 30);//默认30px
         MARKER_HEIGHT = a.getDimensionPixelOffset(R.styleable.MapView_marker_height, 60);//默认60px
-        MARKER_ANIM_DURATION = a.getInteger(R.styleable.MapView_marker_anim_duration, 1200);//默认1.2完成下落动画
+        //MARKER_ANIM_DURATION = a.getInteger(R.styleable.MapView_marker_anim_duration, 0);//默认1.2完成下落动画
         a.recycle();
     }
 
@@ -84,6 +85,7 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
      */
     @Override
     public void onChanged(RectF rectF) {
+        isChanged = true;
         if (mMarkers == null) {
             return;
         }
@@ -94,7 +96,6 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
 
         Marker marker = null;
         for (int i = 0, size = mMarkers.size(); i < size; i++) {
-
             marker = mMarkers.get(i);
 
             /* 计算marker显示的矩形坐标，定位坐标以marker的中下边为基准*/
@@ -103,16 +104,22 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
             int right = roundValue(pLeft + pWidth * marker.getScaleX() + MARKER_WIDTH * 1f / 2);
             int bottom = roundValue(pTop + pHeight * marker.getScaleY());
 
-            if (!isAnimFinished) {//下落动画，第一次状态改变会调用，即图片自适应屏幕缩放后会调用
-                TranslateAnimation ta = new TranslateAnimation(0, 0, -top, 0);
-                ta.setDuration(MARKER_ANIM_DURATION);
-                marker.getMarkerView().startAnimation(ta);
+//            if (!isAnimFinished) {//下落动画，第一次状态改变会调用，即图片自适应屏幕缩放后会调用
+//                TranslateAnimation ta = new TranslateAnimation(0, 0, -top, 0);
+//                ta.setDuration(MARKER_ANIM_DURATION);
+//                marker.getMarkerView().startAnimation(ta);
+//            }
+
+            // 移动marker
+            if (marker.getMarkerView() != null) {
+                marker.getMarkerView().layout(left, top, right, bottom);
+            } else {
+                // 如果 marker.getMarkerView() 为空，可以进行异常处理或者打印日志
+                Log.e("MapContainer", "MarkerView is null");
             }
 
-            //移动marker
-            marker.getMarkerView().layout(left, top, right, bottom);
         }
-        isAnimFinished = true;
+        isChanged = false;
     }
 
 

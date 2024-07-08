@@ -1,4 +1,4 @@
-package com.example.imgmarker;
+package com.example.wifilocation.imgmarker;
 
 import android.content.Context;
 import android.graphics.Matrix;

@@ -70,9 +70,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
         else
         {
-            byte[] bytes = (byte[]) data.get(position).get("avatars");
-            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            holder.imageView_left.setImageBitmap(bitmap);
+            holder.imageView_left.setImageResource(R.drawable.chatgpt);
             holder.left_textView1.setText(data.get(position).get("time").toString());
             holder.left_textView2.setText(data.get(position).get("message").toString());
         }

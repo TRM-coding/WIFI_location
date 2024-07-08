@@ -1,20 +1,23 @@
-package com.example.imgmarker;
+package com.example.wifilocation.imgmarker;
 
-import android.graphics.PostProcessor;
 import android.widget.ImageView;
 
-public class Position {
+public class Marker {
     private float scaleX;//x坐标比例，用比例值来自适应缩放的地图
     private float scaleY;//y坐标比例
+    private float floorZ;//z坐标楼层
+    private String name;
     private ImageView markerView;//标记图标
     private int imgSrcId;//标记图标资源id
 
-    public Position() {
+    public Marker() {
     }
 
-    public Position(float scaleX, float scaleY, int imgSrcId) {
+    public Marker(float scaleX, float scaleY, float floorZ, String name, int imgSrcId) {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
+        this.floorZ = floorZ;
+        this.name = name;
         this.imgSrcId = imgSrcId;
     }
 
@@ -32,6 +35,22 @@ public class Position {
 
     public void setScaleY(float scaleY) {
         this.scaleY = scaleY;
+    }
+
+    public float getFloorZ() {
+        return floorZ;
+    }
+
+    public void setFloorZ(float floorZ) {
+        this.floorZ = floorZ;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setMarkerView(ImageView markerView) {

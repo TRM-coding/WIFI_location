@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginLeft="10dp"
-        tools:srcCompat="@drawable/avatars1" />
+        tools:srcCompat="@drawable/chatgpt" />
 
     <LinearLayout
         android:id="@+id/layout_chat_item2"
