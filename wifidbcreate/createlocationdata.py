@@ -22,7 +22,7 @@ def create_locationdata(macs):
         sql+=mactmp
         sql+=' int default -127,'
     sql=sql[:-1]
-    sql+=')'
+    sql+=',room int not null)'
     conn=pymysql.connect(
         host="localhost",
         user='root',
@@ -48,14 +48,14 @@ def insert_locationdata(data_dir):
                         mactmp=mactmp.replace(':','_')
                         sql+=mactmp
                         sql+=','
-                    sql=sql[:-1]
-                    sql+=') values ('
+                    
+                    sql+='room) values ('
                     for stri in strlist:
                         sql+=str(stri)
                         sql+=','
 
-                    sql=sql[:-1]
-                    sql+=')'
+                    filename, ext = os.path.splitext(file)
+                    sql+=f'{filename})'
                     conn=pymysql.connect(
                         host="localhost",
                         user='root',
@@ -88,7 +88,9 @@ if __name__ =='__main__':
     maclist=getmacs('./wifidbcreate/datas')
     # print(maclist)
     # create_locationdata(maclist)
-    # insert_locationdata('./wifidbcreate/datas')
-    insert_wifimac(maclist)
+    insert_locationdata('./wifidbcreate/datas')
+    # insert_wifimac(maclist)
     print(len(maclist))
 
+
+# ALTER TABLE locationdata2 ADD COLUMN locid INT AUTO_INCREMENT PRIMARY KEY;

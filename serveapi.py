@@ -60,7 +60,7 @@ def chat():
     respond=requests.post(url,data=json_obj,headers=headers) 
     # respond=respond['respond']
     # respond={"respond":respond}
-    print(respond.json())
+    print(respond.json)
     return jsonify(respond.json())
 
 @app.route("/book",methods=["POST"])
