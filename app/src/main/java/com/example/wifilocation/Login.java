@@ -110,6 +110,7 @@ public class Login extends AppCompatActivity {
 
                                 } catch (JSONException e) {
                                     Log.e("Network", "Error parsing JSON response", e);
+                                    Toast.makeText(Login.this,"服务器异常",Toast.LENGTH_LONG).show();
                                 }
 
                             } else {

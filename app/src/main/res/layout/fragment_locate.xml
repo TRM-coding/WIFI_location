@@ -20,12 +20,18 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_weight="7"
-            android:background="@drawable/shape_wihte"
+            android:background="@drawable/shape_white"
             android:ems="19"
             android:hint="请输入查找内容"
             android:inputType="textMultiLine"
             android:padding="1dp"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:textColor="#000000"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:clickable="true" />
+
+
 
         <Button
             android:id="@+id/send"

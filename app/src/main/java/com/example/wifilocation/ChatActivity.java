@@ -45,7 +45,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private TextView textView1;
 
-    private ImageView back, more;
+    private ImageView back;
 
     private Button button1;
 
@@ -72,7 +72,6 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.activity_chat_recyclerView);
         textView1 = findViewById(R.id.activity_chat_textView1);
         back = findViewById(R.id.activity_chat_imageView_back);
-        more = findViewById(R.id.activity_chat_imageView_more);
         button1 = findViewById(R.id.activity_chat_button);
         editText = findViewById(R.id.activity_chat_editText);
 
@@ -115,10 +114,8 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
                 if (hasFocus) {
-                    more.setVisibility(View.GONE);
                     button1.setVisibility(View.VISIBLE);
                 } else {
-                    more.setVisibility(View.VISIBLE);
                     button1.setVisibility(View.GONE);
                 }
             }

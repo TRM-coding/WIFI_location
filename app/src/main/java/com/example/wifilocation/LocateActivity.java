@@ -9,15 +9,12 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.LongDef;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -25,7 +22,6 @@ import com.example.wifilocation.locate.Book;
 import com.example.wifilocation.locate.MapContainer;
 import com.example.wifilocation.locate.Marker;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +32,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -50,6 +48,8 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
     ArrayList<Book> books;
     ImageView back;
     Book book;
+    // 检测是否继续查找wifi指纹
+    boolean isWifiRunning = true;
 
     public class Pair {
         public final int first;
@@ -98,7 +98,6 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
     private void getWifiFinger(Context context, Activity activity) {
         try {
             WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            System.out.println("P2 done");
             if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 System.out.println("No Permission");
                 ActivityCompat.requestPermissions(activity,
@@ -106,17 +105,14 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                         MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             }
             boolean success = wifiManager.startScan();
-            System.out.println(success);
             List<Pair> params = new ArrayList<>();
             List<ScanResult> results = wifiManager.getScanResults();
-            System.out.println(results.toString());
             StringBuilder newText = new StringBuilder();
             for (ScanResult result : results) {
                 String ssid = result.SSID;
                 String bssid = result.BSSID;
                 int rssi = result.level;
                 if (Objects.equals(ssid, "phone.wlan.bjtu")) {
-                    System.out.println(bssid);
                     Pair pair = new Pair(rssi, bssid);
                     params.add(pair);
                 }
@@ -129,7 +125,6 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
             });
             Data data = new Data();
             for (int i = 0; i < params.size(); ++i) {
-                System.out.println(i);
                 newText.append("(").append(params.get(i).second).append(",").append(params.get(i).first).append(")");
                 if (i < params.size() - 1) newText.append(",");
                 data.wifimac.add(params.get(i).second);
@@ -140,23 +135,18 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                 @Override
                 public void run() {
                     try {
-                        // 创建URL对象
+                        // 定期检查标志位
                         URL url = new URL(getApplicationContext().getString(R.string.base_url) + "location");
-                        // 创建HttpURLConnection对象
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        // 设置请求方法
                         conn.setRequestMethod("POST");
-                        // 设置请求头为JSON
                         conn.setRequestProperty("Content-Type", "application/json");
-                        // 设置输出流，以便发送POST请求
                         conn.setDoOutput(true);
-                        // 获取输出流
                         OutputStream os = conn.getOutputStream();
-                        // 创建一个JSONObject对象
                         JSONObject jsonParam = new JSONObject();
                         // 添加你的数据
                         jsonParam.put("mac_list", data.wifimac);
                         jsonParam.put("mac_strength", data.wifistrength);
+                        Log.d("PARAM", "mac_list:" + data.wifimac + " mac_strength:" + data.wifistrength);
                         // 写入数据
                         os.write(jsonParam.toString().getBytes());
                         os.flush();
@@ -174,18 +164,31 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                             in.close();
                             // 输出收到的完整 JSON 字符串
                             Log.d("Network", "Received JSON: " + response.toString());
+                            // 依据房间定位
                             try {
                                 JSONObject jsonResponse = new JSONObject(response.toString());
-                                float x = (float) jsonResponse.getDouble("x");
-                                float y = (float) jsonResponse.getDouble("y");
-                                float z = (float) jsonResponse.getDouble("z");
+                                String room = jsonResponse.getString("room");
+                                // 转化数组
+                                Map<String, float[]> map = new HashMap<>();
+                                map.put("415", new float[]{0.2f, 0.2f});
+                                map.put("414", new float[]{0.3f, 0.3f});
+                                map.put("413", new float[]{0.4f, 0.4f});
+                                map.put("406", new float[]{0.5f, 0.5f});
+                                map.put("408", new float[]{0.6f, 0.6f});
+                                map.put("409", new float[]{0.7f, 0.7f});
+
                                 Marker m = mMarkers.get(0);
-                                m.setScaleX(transferScaleX(x));
-                                m.setScaleY(transferScaleY(y));
-                                m.setFloorZ(z);
-                                updateMap();
-                                textCurFloor.setText("当前楼层：" + String.valueOf((int) z) + "F");
-                                Log.d("CHANGE", "Self marker change successfully");
+                                float[] array = map.get(room);
+                                assert array != null;
+                                m.setScaleX(array[0]);
+                                m.setScaleY(array[1]);
+                                m.setFloorZ(4);
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        textCurFloor.setText("当前房间" + room);
+                                    }
+                                });
                             } catch (JSONException e) {
                                 Log.e("Network", "Error parsing JSON response", e);
                             }
@@ -222,7 +225,6 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                     mMapContainer.setMarkers(mMarkers);
                     mMapContainer.setOnMarkerClickListener(LocateActivity.this);
                     Log.d("INIT", "init successfully");
-                    updateMap();
                 } else {
                     Log.d("INIT", "mMapContainer is null");
                 }
@@ -270,13 +272,13 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
     private float transferScaleX(float x) {
 //        float width = mMapContainer.getWidth();
 //        return (x % width) / width;
-        return (x % 94) / 94;
+        return (x % 20) / 20;
     }
 
     private float transferScaleY(float y) {
 //        float height = mMapContainer.getHeight();
 //        return (y % height) / height;
-        return (y % 50) / 50;
+        return (y % 20) / 20;
     }
 
     /**

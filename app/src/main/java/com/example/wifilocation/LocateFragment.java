@@ -85,7 +85,6 @@ public class LocateFragment extends Fragment {
             @Override
             public void run() {
                 try {
-                    dialog = ProgressDialog.show(requireContext(), "", "正在查询，请稍等", true);
                     URL url = new URL(requireContext().getString(R.string.base_url) + "book");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
@@ -138,7 +137,6 @@ public class LocateFragment extends Fragment {
                                     books.clear();
                                     books.addAll(bookList);
                                     adapter.notifyDataSetChanged();
-                                    dialog.dismiss();
                                 }
                             });
 

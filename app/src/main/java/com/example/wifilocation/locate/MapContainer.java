@@ -92,6 +92,7 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
         float pHeight = rectF.height();//地图高度
         float pLeft = rectF.left;//地图左边x坐标
         float pTop = rectF.top;//地图顶部y坐标
+        Log.d("REC", "width" + pWidth + "height" + pHeight + "left" + pLeft + "top" + pTop);
 
         Marker marker = null;
         for (int i = 0, size = mMarkers.size(); i < size; i++) {
