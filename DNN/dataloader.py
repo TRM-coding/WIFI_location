@@ -13,4 +13,9 @@ class dataloader:
         sql='select * from locationdata2'
         cursor.execute(sql)
         datas=cursor.fetchall()
-        
+        for datai in datas:
+            input_tmp=[]
+            for item in datai[:-2]:
+                input_tmp.append(item)
+            lable=datai[-1]
+

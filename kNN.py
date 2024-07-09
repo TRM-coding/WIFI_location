@@ -5,7 +5,7 @@ import pymysql
 class kNN():
     def __init__(self):
         self.dim=135
-        self.k=21
+        self.k=31
         print('init')
 
     def build(self):
