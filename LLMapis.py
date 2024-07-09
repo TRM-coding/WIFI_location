@@ -6,13 +6,14 @@ from LLMkernel import LLMkernel
 import os
 
 app=Flask(__name__)
-os.environ["CUDA_VISIBLE_DEVICES"]=','.join(map(str,[0,1]))
+# os.environ["CUDA_VISIBLE_DEVICES"]=','.join(map(str,[0,1]))
 
 
 model_dir="./glm4/ZhipuAI/glm-4-9b-chat"
 
 with torch.no_grad():
-    LLM=AutoModel.from_pretrained(model_dir,trust_remote_code=True,device_map='auto').float().eval()
+    # LLM=AutoModel.from_pretrained(model_dir,trust_remote_code=True,device_map='auto').float().eval()
+    LLM=AutoModel.from_pretrained(model_dir,trust_remote_code=True,device_map='auto').half().eval()
 tokenizer=AutoTokenizer.from_pretrained(model_dir,trust_remote_code=True)
 
 

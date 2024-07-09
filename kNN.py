@@ -27,16 +27,17 @@ class kNN():
         results=cursor.fetchall()
         self.dataSet=results
         self.dataSetSize=len(results)
-        print(len(results))
+        # print(len(results))
         cursor.close()
         conn.close()
     
     def classify(self,input_data):
         # json=js.loads(input_data)
         json=input_data
-        wifimacs=json['mac_list']
+        wifimacs=json['mac_list'].strip('[]').split(',')
 
-        wifirssi=json['mac_strength']
+        wifirssi=json['mac_strength'].strip('[]').split(',')
+        
         conn=pymysql.connect(
             host='localhost',
             user='root',
@@ -46,11 +47,14 @@ class kNN():
         cursor=conn.cursor()
         inX=np.full((1,self.dim),-127)
         for i,wifimac in enumerate(wifimacs,0):
+            wifimac=wifimac.strip()
             sql='select id from wifimac where mac=%s'
             # print("mac:"+'a'+wifimac.replace(':','_'))
             cursor.execute(sql,wifimac)
+            print(wifimac)
             result=cursor.fetchall()
-            inX[0][result[0][0]-1]=wifirssi[i]
+            # print(result[0][0])
+            inX[0][result[0][0]-1]=int(wifirssi[i])
         diffMat=np.tile(inX,(self.dataSetSize,1))-self.dataSet
         sqDiffMat=diffMat**2
         sqDistances=sqDiffMat.sum(axis=1)
