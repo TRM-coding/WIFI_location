@@ -15,7 +15,7 @@ def getmacs(data_dir):
     return macs
 
 def create_locationdata(macs):
-    sql="create table locationdata2 ("
+    sql="create table locationdata3 (x int,y int,z int,"
     for maci in macs:
         mactmp='a'+maci
         mactmp=mactmp.replace(':','_')
@@ -42,18 +42,20 @@ def insert_locationdata(data_dir):
                     data=json.loads(line)
                     maclist=data['wifimac']
                     strlist=data['wifistrength']
-                    sql='insert into locationdata2 ('
+                    sql='insert into locationdata3 (x,y,z,'
                     for maci in maclist:
                         mactmp='a'+maci
                         mactmp=mactmp.replace(':','_')
                         sql+=mactmp
                         sql+=','
-                    
-                    sql+='room) values ('
+
+                    x=data['lx']
+                    y=data['ly']
+                    z=data['lz']
+                    sql+=f'room) values ({x},{y},{z},'
                     for stri in strlist:
                         sql+=str(stri)
                         sql+=','
-
                     filename, ext = os.path.splitext(file)
                     sql+=f'{filename})'
                     conn=pymysql.connect(
@@ -85,10 +87,10 @@ def insert_wifimac(maclist):
 
 
 if __name__ =='__main__':
-    maclist=getmacs('./wifidbcreate/datas')
+    maclist=getmacs('./DNN')
     # print(maclist)
     # create_locationdata(maclist)
-    insert_locationdata('./wifidbcreate/datas')
+    insert_locationdata('./DNN')
     # insert_wifimac(maclist)
     print(len(maclist))
 
