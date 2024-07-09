@@ -60,16 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    //{
-    // "x":12,
-    // "y":134,
-    // "z":12
-    // }
-    //
-//    {
-//        “mac_list”:“[0b:aa,23:89]”,
-//         "mac_strength" :"[23,-12]"
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

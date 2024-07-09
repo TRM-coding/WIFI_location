@@ -1,4 +1,4 @@
-package com.example.wifilocation.imgmarker;
+package com.example.wifilocation.locate;
 
 import android.widget.ImageView;
 

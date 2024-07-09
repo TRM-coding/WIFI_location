@@ -1,4 +1,4 @@
-package com.example.wifilocation.imgmarker;
+package com.example.wifilocation.locate;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -11,7 +11,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 
 /**
  * 可手势缩放移动双击缩放ImageView

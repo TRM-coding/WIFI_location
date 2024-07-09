@@ -172,6 +172,7 @@ public class ChatActivity extends AppCompatActivity {
                     JSONObject jsonParam = new JSONObject();
                     // 添加你的数据
                     jsonParam.put("msg", msg);
+                    jsonParam.put("temperature", 0.5);
                     // 写入数据
                     os.write(jsonParam.toString().getBytes());
                     os.flush();
@@ -204,17 +205,15 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     /**
-     * 处理后端响应的方法
+     * 处理JSON数据
+     * @param responseJson
      */
 
     private void handleResponse(String responseJson) {
         try {
-            // 将响应转换为 JSONObject
             JSONObject jsonResponse = new JSONObject(responseJson);
-            // 处理返回的 JSON 数据示例
-            String msg = jsonResponse.getString("msg");
+            String msg = jsonResponse.getString("respond");
 
-            // 根据 result 值显示不同的 Toast 消息
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

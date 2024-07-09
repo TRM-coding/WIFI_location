@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#DCDFE6"
+    android:orientation="vertical">
+
+    <!-- MapContainer -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="7">
+
+        <com.example.wifilocation.locate.MapContainer
+            android:id="@+id/mc_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:marker_anim_duration="1200"
+            app:marker_height="94dp"
+            app:marker_width="66dp" />
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:scaleType="center"
+            app:srcCompat="@drawable/back" />
+
+        <TextView
+            android:id="@+id/text_current_floor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="当前楼层"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:background="#80000000"
+            android:padding="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_toRightOf="@id/back"
+            android:layout_alignParentTop="true" />
+    </RelativeLayout>
+
+</LinearLayout>

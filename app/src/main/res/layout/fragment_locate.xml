@@ -1,50 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_locate"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DCDFE6"
     android:orientation="vertical">
 
-    <!-- MapContainer -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="7">
-
-        <com.example.wifilocation.imgmarker.MapContainer
-            android:id="@+id/mc_map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:marker_anim_duration="1200"
-            app:marker_height="94dp"
-            app:marker_width="66dp" />
-
-        <TextView
-            android:id="@+id/text_current_floor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="当前楼层"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:background="#80000000"
-            android:padding="8dp"
-            android:layout_margin="16dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true" />
-    </RelativeLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginBottom="20dp"
-        android:background="@color/black" />
-
-    <!-- Bottom LinearLayout for EditText and Button -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp">
 
@@ -54,16 +19,16 @@
             android:layout_height="40dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="4dp"
             android:layout_weight="7"
             android:background="@drawable/shape_wihte"
             android:ems="19"
+            android:hint="请输入查找内容"
             android:inputType="textMultiLine"
             android:padding="1dp"
             android:textSize="12sp" />
 
         <Button
-            android:id="@+id/chat"
+            android:id="@+id/send"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
@@ -71,6 +36,35 @@
             android:background="#27C600"
             android:text="发送"
             android:textColor="#fff" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/black" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E0E0E0"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="书单名录"
+            android:textColor="#000000"
+            android:textSize="20sp" />
 
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/book_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 </LinearLayout>

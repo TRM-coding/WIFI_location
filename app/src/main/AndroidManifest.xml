@@ -29,10 +29,13 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
+            android:name=".LocateActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChatActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".Login"
             android:exported="true">

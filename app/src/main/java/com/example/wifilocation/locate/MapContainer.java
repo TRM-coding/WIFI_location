@@ -1,4 +1,4 @@
-package com.example.wifilocation.imgmarker;
+package com.example.wifilocation.locate;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -7,7 +7,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
 import com.example.wifilocation.R;
@@ -216,7 +215,7 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
      *
      * @param l
      */
-    public void setOnMarkerClickListner(OnMarkerClickListner l) {
+    public void setOnMarkerClickListener(OnMarkerClickListner l) {
         this.onMarkerClickListner = l;
     }
 

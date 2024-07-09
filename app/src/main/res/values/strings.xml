@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">WIFI Location</string>
-    <string name="base_url">http://10.60.136.41:5000/</string>
+    <string name="base_url">http://i-2.gpushare.com:40003/</string>
 </resources>
