@@ -42,7 +42,7 @@ with open('data.json', 'r', encoding='utf-8') as file:
             print(f"行 {line_number} 解析错误: {e}")
 # print(len(wifimac_dict))
 # sql+='primary key(locid))'
-sql='select * from wifimac'
+sql='select * from locationdata2'
 print(sql)
 cursor.execute(sql)
 results=cursor.fetchall()

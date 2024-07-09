@@ -1,5 +1,7 @@
 import torch
 from torch import nn
+import matplotlib.pyplot as plt
+
 
 class DNN(nn.Module):
 
@@ -37,7 +39,7 @@ class DNN(nn.Module):
     
     def train(self,epochs,lr):
         optimizer=torch.optim.SGD(self.params,lr=lr)
-
+        loss_list=[]
         for epoch in range(epochs):
             outputs=self.forward(self.train_data)
             loss=self.loss(outputs,self.train_lable)
@@ -47,8 +49,16 @@ class DNN(nn.Module):
             optimizer.step()
 
             print(f'Epoch:{epoch} loss:{loss.item()}')
+            loss_list.append(loss.item())
+
 
         torch.save(self.state_dict(),'./DNN/model.pth')
+        plt.figure()
+        plt.plot(range(epochs), loss_list)
+        plt.title('Training Loss Curve')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.show()
     
     def from_pretrained(self,model_path):
         self.load_state_dict(torch.load(model_path))
