@@ -109,26 +109,5 @@ def location():
 
 
 
-
-
-
-
-
-# @app.route('getRoad', methods=['POST'])
-# def getRoad():
-#     data = request.get_json()
-#     controller = RoadCalculater.RoadCalculater(data)
-#     result = controller.get_road()
-#     json_data={i:v for i,v in enumerate(result)}
-#     return jsonify(json_data)
-
-# @app.route('addWIFIinf', methods=['POST'])
-# def addWIFIinf():
-#     data = request.get_json()
-#     controller = wifiInfController.wifiInfController()
-#     result = controller.insertLocalArgs(data)
-#     return jsonify(result)
-
-
 if __name__=="__main__":
     app.run(host='0.0.0.0', port=8080)
