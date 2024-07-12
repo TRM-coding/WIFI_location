@@ -26,11 +26,9 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
      */
     private boolean isFirstLayout = true;
     private Context mContext;//上下文
-    private boolean isChanged = false;
     //private int MARKER_ANIM_DURATION;//动画时间
     private int MARKER_WIDTH; //marker宽度
     private int MARKER_HEIGHT; //marker高度
-    private boolean isAnimFinished = false;
     private MapView mMapView;//地图View
     private List<Marker> mMarkers;//marker集合
 
@@ -84,7 +82,6 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
      */
     @Override
     public void onChanged(RectF rectF) {
-        isChanged = true;
         if (mMarkers == null) {
             return;
         }
@@ -92,7 +89,7 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
         float pHeight = rectF.height();//地图高度
         float pLeft = rectF.left;//地图左边x坐标
         float pTop = rectF.top;//地图顶部y坐标
-        Log.d("REC", "width" + pWidth + "height" + pHeight + "left" + pLeft + "top" + pTop);
+        Log.d("RECT", "left:" + pLeft + " top:" + pTop);
 
         Marker marker = null;
         for (int i = 0, size = mMarkers.size(); i < size; i++) {
@@ -119,7 +116,6 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
             }
 
         }
-        isChanged = false;
     }
 
 

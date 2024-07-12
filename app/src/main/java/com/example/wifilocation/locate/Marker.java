@@ -68,4 +68,10 @@ public class Marker {
     public ImageView getMarkerView() {
         return markerView;
     }
+
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }

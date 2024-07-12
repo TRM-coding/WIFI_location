@@ -369,7 +369,7 @@ public class MapView extends androidx.appcompat.widget.AppCompatImageView implem
      *
      * @return
      */
-    private RectF getMatrixRect() {
+    public RectF getMatrixRect() {
         RectF rect = new RectF();
         Drawable drawable = getDrawable();
         if (drawable != null) {
@@ -421,6 +421,10 @@ public class MapView extends androidx.appcompat.widget.AppCompatImageView implem
     }
 
     private OnMapStateChangedListner onChangedListner;//地图状态变化监听对象
+
+    public OnMapStateChangedListner getOnChangedListner() {
+        return onChangedListner;
+    }
 
     public void setOnMapStateChangedListner(OnMapStateChangedListner l) {
         onChangedListner = l;

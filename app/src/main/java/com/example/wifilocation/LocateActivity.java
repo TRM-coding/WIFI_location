@@ -20,8 +20,10 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.wifilocation.locate.Book;
 import com.example.wifilocation.locate.MapContainer;
+import com.example.wifilocation.locate.MapView;
 import com.example.wifilocation.locate.Marker;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,8 +50,13 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
     ArrayList<Book> books;
     ImageView back;
     Book book;
-    // 检测是否继续查找wifi指纹
-    boolean isWifiRunning = true;
+    // 当前房间位置
+    String room;
+
+    Map<String, float[]> map = new HashMap<>();
+
+    private Handler handler;
+    private Runnable updateMarketRunnable;
 
     public class Pair {
         public final int first;
@@ -85,8 +92,31 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
         book = getIntent().getParcelableExtra("book");
         // 初始化地图
         initMap();
-        // 每3秒钟进行一次定位
-        startPhoneSelfLocation();
+        // 初始化 Handler 和 Runnable
+        handler = new Handler();
+        updateMarketRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // 开始定位，并更新坐标
+                getWifiFinger(context, activity);
+                // 绘制最短路径
+                drawShortestPath();
+                // 延迟3秒后再次执行
+                handler.postDelayed(this, 3000);
+            }
+        };
+
+        // 第一次调用，延迟0秒后执行
+        handler.post(updateMarketRunnable);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 移除 Runnable，停止定时任务
+        if (handler != null && updateMarketRunnable != null) {
+            handler.removeCallbacks(updateMarketRunnable);
+        }
     }
 
     /**
@@ -167,26 +197,25 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                             // 依据房间定位
                             try {
                                 JSONObject jsonResponse = new JSONObject(response.toString());
-                                String room = jsonResponse.getString("room");
-                                // 转化数组
-                                Map<String, float[]> map = new HashMap<>();
-                                map.put("415", new float[]{0.2f, 0.2f});
-                                map.put("414", new float[]{0.3f, 0.3f});
-                                map.put("413", new float[]{0.4f, 0.4f});
-                                map.put("406", new float[]{0.5f, 0.5f});
-                                map.put("408", new float[]{0.6f, 0.6f});
-                                map.put("409", new float[]{0.7f, 0.7f});
+                                room = jsonResponse.getString("room");
+                                Log.d("ROOM", room);
 
                                 Marker m = mMarkers.get(0);
                                 float[] array = map.get(room);
                                 assert array != null;
-                                m.setScaleX(array[0]);
-                                m.setScaleY(array[1]);
+                                m.setScaleX(array[1] / 33);
+                                m.setScaleY(array[0] / 92 + 0.05f);
                                 m.setFloorZ(4);
                                 activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        textCurFloor.setText("当前房间" + room);
+                                        textCurFloor.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                textCurFloor.setText("当前房间" + room);
+                                                Log.d("ROOM_CHANGE", "当前房间" + room);
+                                            }
+                                        });
                                     }
                                 });
                             } catch (JSONException e) {
@@ -208,11 +237,93 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
         }
     }
 
+
+    /**
+     * 绘制最短路路径
+     */
+    private void drawShortestPath() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // 定期检查标志位
+                    URL url = new URL(getApplicationContext().getString(R.string.base_url) + "navigate");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setDoOutput(true);
+                    OutputStream os = conn.getOutputStream();
+                    JSONObject jsonParam = new JSONObject();
+                    jsonParam.put("from", room);
+                    jsonParam.put("to", "408");
+                    // 写入数据
+                    os.write(jsonParam.toString().getBytes());
+                    os.flush();
+                    os.close();
+                    // 获取响应码
+                    int responseCode = conn.getResponseCode();
+                    if (responseCode == 200) {
+                        // 请求成功，读取响应数据
+                        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                        StringBuilder response = new StringBuilder();
+                        String inputLine;
+                        while ((inputLine = in.readLine()) != null) {
+                            response.append(inputLine);
+                        }
+                        in.close();
+                        // 输出收到的完整 JSON 字符串
+                        Log.d("Network", "Received JSON: " + response.toString());
+                        // 将路径序列模拟成一个个房间
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response.toString());
+                            String roomsString = jsonResponse.getString("respond");
+                            JSONArray roomsArray = new JSONArray(roomsString);
+                            // 删除原先的路径坐标
+                            if (mMarkers.size() > 2) {
+                                mMarkers.subList(2, mMarkers.size()).clear();
+                                Log.d("ROOM_CLEAR", mMarkers.toString());
+                            }
+                            for (int i = 0; i < roomsArray.length(); i++) {
+                                JSONObject roomObject = roomsArray.getJSONObject(i);
+                                String r = roomObject.getString("room");
+                                float[] array = map.get(r);
+                                assert array != null;
+                                mMarkers.add(new Marker(array[1] / 33, array[0] / 92 + 0.05f, 4f, r, R.drawable.dot));
+                                Log.d("ROOM_ADD", mMarkers.toString());
+                            }
+                            mMapContainer.setMarkers(mMarkers);
+                            mMapContainer.setOnMarkerClickListener(LocateActivity.this);
+                            // 改变坐标位置
+                            MapView mMapView;
+                            mMapView = mMapContainer.getMapView();
+                            if (mMapView != null)
+                                mMapView.getOnChangedListner().onChanged(mMapView.getMatrixRect());
+                        } catch (JSONException e) {
+                            Log.e("Network", "Error parsing JSON response", e);
+                        }
+                    } else {
+                        // 请求失败
+                        Log.d("Network", "Request failed with response code: " + responseCode);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("Network", "Exception", e);
+                }
+            }
+        }).start();
+    }
+
+
     /**
      * 根据jsonResponse在地图上生成对应的标记点
      */
     private void initMap() {
-        Log.d("INIT", "initMap called"); // 添加日志输出
+        map.put("415", new float[]{6, 4});
+        map.put("414", new float[]{20, 4});
+        map.put("413", new float[]{32, 4});
+        map.put("406", new float[]{84, 26});
+        map.put("408", new float[]{86, 16});
+        map.put("409", new float[]{76, 16});
         LocateActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -251,23 +362,6 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
         mMapContainer.onChanged(rectF);
     }
 
-    /**
-     * 开始自身手机定位
-     */
-    private void startPhoneSelfLocation() {
-        final Handler handler = new Handler();
-        final Runnable updateMarketRunnable = new Runnable() {
-            @Override
-            public void run() {
-                getWifiFinger(context, activity);
-                // 延迟3秒后再次执行
-                handler.postDelayed(this, 3000);
-            }
-        };
-
-        // 第一次调用，延迟0秒后执行
-        handler.post(updateMarketRunnable);
-    }
 
     private float transferScaleX(float x) {
 //        float width = mMapContainer.getWidth();

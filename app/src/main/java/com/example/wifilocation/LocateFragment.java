@@ -46,7 +46,7 @@ public class LocateFragment extends Fragment {
     private ArrayList<Book> books;
     private BookAdapter adapter;
 
-    private ProgressDialog dialog;
+    private LoadingDialog loadingDialog;
 
     public LocateFragment() {
     }
@@ -74,6 +74,9 @@ public class LocateFragment extends Fragment {
                 if (!msg.isEmpty()) {
                     editMsg.setText("");
                     sendHttpRequest(msg);
+                    // 显示加载动画
+                    loadingDialog = new LoadingDialog(getContext());
+                    loadingDialog.show();
                 }
             }
         });
@@ -137,6 +140,8 @@ public class LocateFragment extends Fragment {
                                     books.clear();
                                     books.addAll(bookList);
                                     adapter.notifyDataSetChanged();
+                                    // 关闭加载窗口
+                                    loadingDialog.dismiss();
                                 }
                             });
 
