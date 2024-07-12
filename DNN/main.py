@@ -8,8 +8,8 @@ if __name__ =='__main__':
     dr=dataloader.dataloader(0.95)
     train_input,train_lable=dr.train_load()
 
-    lr=0.0000001
-    ep=2000
+    lr=0.000000001
+    ep=5000
 
     modelx=DNN.DNN()
     lable_x=[tp[0] for tp in train_lable]
