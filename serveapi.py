@@ -87,10 +87,10 @@ def navigate():
     # y=req['sy']
     # z=req['sz']
     road_list=navi.spfa(req)
-    print(road_list)
+    # print(road_list)
     ans={str(i): v for i, v in enumerate(road_list)}
-    print(ans)
-    return jsonify(ans) 
+    # print(ans)
+    return jsonify(road_list) 
     
 
 

@@ -12,6 +12,7 @@ class dataloader:
             passwd='123',
             database='WIFI'
         )
+        self.rate=-0.005
         cursor=conn.cursor()
         sql='select * from locationdata3'
         cursor.execute(sql)
@@ -21,7 +22,7 @@ class dataloader:
         for datai in datas:
             input_tmp=[]
             for item in datai[3:-1]:
-                input_tmp.append(item*-1)
+                input_tmp.append(item*self.rate)
             lable_tmp=(datai[0],datai[1],datai[2])
 
             # mean = np.mean(input_tmp)  # 计算平均值

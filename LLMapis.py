@@ -11,6 +11,8 @@ app=Flask(__name__)
 
 model_dir="./glm4/ZhipuAI/glm-4-9b-chat"
 
+# chat_history=None
+
 with torch.no_grad():
     # LLM=AutoModel.from_pretrained(model_dir,trust_remote_code=True,device_map='auto').float().eval()
     LLM=AutoModel.from_pretrained(model_dir,trust_remote_code=True,device_map='auto').half().eval()

@@ -3,10 +3,14 @@ import torch
 from modelscope import AutoModel,AutoTokenizer,snapshot_download
 import pymysql
 from flask import jsonify
+
+
+
 class LLMkernel:
     def __init__(self,llm,tokenizer):
         self.LLM=llm
         self.tokenizer=tokenizer
+        # self.history_chat=history_chat
     
     def getBooks(self,json_data):
         content=json_data['prompt']
@@ -79,5 +83,5 @@ class LLMkernel:
         temp=float(temp)
         print("正在响应...")
         print(temp)
-        result,history=self.LLM.chat(self.tokenizer,prompt,history=[],temperature=temp)
+        result,history=self.LLM.chat(self.tokenizer,prompt,temperature=temp)
         return result

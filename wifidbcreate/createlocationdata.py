@@ -89,7 +89,7 @@ def insert_wifimac(maclist):
 if __name__ =='__main__':
     maclist=getmacs('./DNN')
     # print(maclist)
-    # create_locationdata(maclist)
+    create_locationdata(maclist)
     insert_locationdata('./DNN')
     # insert_wifimac(maclist)
     print(len(maclist))
