@@ -74,9 +74,6 @@ public class LocateFragment extends Fragment {
                 if (!msg.isEmpty()) {
                     editMsg.setText("");
                     sendHttpRequest(msg);
-                    // 显示加载动画
-                    loadingDialog = new LoadingDialog(getContext());
-                    loadingDialog.show();
                 }
             }
         });
@@ -84,6 +81,9 @@ public class LocateFragment extends Fragment {
     }
 
     private void sendHttpRequest(String msg) {
+        // 显示加载动画
+        loadingDialog = new LoadingDialog(getContext());
+        loadingDialog.show();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -98,6 +98,7 @@ public class LocateFragment extends Fragment {
                     JSONObject jsonParam = new JSONObject();
                     jsonParam.put("msg", msg);
                     jsonParam.put("temperature", 0.5);
+                    Log.d("DATA", "Post data:" + jsonParam);
                     os.write(jsonParam.toString().getBytes());
                     os.flush();
                     os.close();
@@ -121,6 +122,7 @@ public class LocateFragment extends Fragment {
                         try {
                             JSONObject jsonResponse = new JSONObject(jsonString);
                             String booksString = jsonResponse.getString("respond");
+                            Log.d("BOOK", booksString);
                             JSONArray booksArray = new JSONArray(booksString);
                             List<Book> bookList = new ArrayList<>();
 
@@ -140,8 +142,6 @@ public class LocateFragment extends Fragment {
                                     books.clear();
                                     books.addAll(bookList);
                                     adapter.notifyDataSetChanged();
-                                    // 关闭加载窗口
-                                    loadingDialog.dismiss();
                                 }
                             });
 
@@ -154,6 +154,7 @@ public class LocateFragment extends Fragment {
                 } catch (Exception e) {
                     Log.e("Network", "Exception", e);
                 }
+                loadingDialog.dismiss();
             }
         }).start();
     }

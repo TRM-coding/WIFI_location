@@ -119,11 +119,10 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     private void initData() {
-        String[] name = {"AI聊天", "Jack", "Lucy", "睡不醒", "刘明"};
-        String[] message = {"我是AI聊天", "哈哈哈", "今天有空吗？", "呜呜呜", "呵呵",};
-        String[] time = {"", "昨天", "3月15日", "3月15日", "3月15日",};
-        Integer[] avatars = {R.drawable.chatgpt, R.drawable.avatars2, R.drawable.avatars3,
-                R.drawable.avatars4, R.drawable.avatars5};
+        String[] name = {"AI聊天", };
+        String[] message = {"我是AI聊天",};
+        String[] time = {"",};
+        Integer[] avatars = {R.drawable.chatgpt, };
 
         for (int i = 0; i < name.length; i++) {
             HashMap<String, Object> d = new HashMap<>();

@@ -31,10 +31,10 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        editTextPhone = findViewById(R.id.msg);
+        editTextPhone = findViewById(R.id.phone);
         editTextPassword = findViewById(R.id.pwd);
-        loginButton = findViewById(R.id.login);
-        registerButton = findViewById(R.id.reg);
+        loginButton = findViewById(R.id.button_login);
+        registerButton = findViewById(R.id.button_register);
         // 登录按钮 提交数据
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override

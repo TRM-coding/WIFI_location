@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.RectF;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -11,9 +14,12 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.hardware.SensorEventListener;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -40,7 +46,7 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class LocateActivity extends AppCompatActivity implements MapContainer.OnMarkerClickListner {
+public class LocateActivity extends AppCompatActivity implements SensorEventListener, MapContainer.OnMarkerClickListner {
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     Context context;
     Activity activity;
@@ -53,10 +59,16 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
     // 当前房间位置
     String room;
 
+    //通过加速度传感器和地磁传感器指向身前
+    private SensorManager sensorManager;
+    private float lastRotateDegree;
+    float[] accelerometerValues = new float[3];
+    float[] magneticValues = new float[3];
+
     Map<String, float[]> map = new HashMap<>();
 
     private Handler handler;
-    private Runnable updateMarketRunnable;
+    private Runnable updateRunnable;
 
     public class Pair {
         public final int first;
@@ -88,15 +100,42 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
         mMapContainer = findViewById(R.id.mc_map);
         back = findViewById(R.id.back);
         setbackListener();
+
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        //加速度感应器
+        Sensor magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        //地磁感应器
+        Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+
         // 获得当前显示market的书本
         book = getIntent().getParcelableExtra("book");
         // 初始化地图
         initMap();
         // 初始化 Handler 和 Runnable
         handler = new Handler();
-        updateMarketRunnable = new Runnable() {
+        updateRunnable = new Runnable() {
             @Override
             public void run() {
+                // 改变坐标位置
+                MapView mMapView = mMapContainer.getMapView();
+                if (mMapView != null) {
+                    mMapView.getOnChangedListner().onChanged(mMapView.getMatrixRect());
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textCurFloor.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    textCurFloor.setText("当前房间" + room);
+                                    Log.d("ROOM_CHANGE", "当前房间" + room);
+                                }
+                            });
+                        }
+                    });
+                }
+
                 // 开始定位，并更新坐标
                 getWifiFinger(context, activity);
                 // 绘制最短路径
@@ -105,17 +144,18 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                 handler.postDelayed(this, 3000);
             }
         };
-
-        // 第一次调用，延迟0秒后执行
-        handler.post(updateMarketRunnable);
+        handler.post(updateRunnable);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // 移除 Runnable，停止定时任务
-        if (handler != null && updateMarketRunnable != null) {
-            handler.removeCallbacks(updateMarketRunnable);
+        if (handler != null && updateRunnable != null) {
+            handler.removeCallbacks(updateRunnable);
+        }
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
         }
     }
 
@@ -206,18 +246,7 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                                 m.setScaleX(array[1] / 33);
                                 m.setScaleY(array[0] / 92 + 0.05f);
                                 m.setFloorZ(4);
-                                activity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        textCurFloor.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                textCurFloor.setText("当前房间" + room);
-                                                Log.d("ROOM_CHANGE", "当前房间" + room);
-                                            }
-                                        });
-                                    }
-                                });
+
                             } catch (JSONException e) {
                                 Log.e("Network", "Error parsing JSON response", e);
                             }
@@ -293,11 +322,6 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                             }
                             mMapContainer.setMarkers(mMarkers);
                             mMapContainer.setOnMarkerClickListener(LocateActivity.this);
-                            // 改变坐标位置
-                            MapView mMapView;
-                            mMapView = mMapContainer.getMapView();
-                            if (mMapView != null)
-                                mMapView.getOnChangedListner().onChanged(mMapView.getMatrixRect());
                         } catch (JSONException e) {
                             Log.e("Network", "Error parsing JSON response", e);
                         }
@@ -330,9 +354,11 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                 if (mMapContainer != null) {
                     mMapContainer.getMapView().setImageResource(R.drawable.map);
                     mMarkers = new ArrayList<>();
-                    mMarkers.add(new Marker(0, 0, 1, "Me", R.drawable.coordinate)); // 自身位置标记
-                    mMarkers.add(new Marker(transferScaleX(book.getScaleX()), transferScaleY(book.getScaleY()), book.getFloorZ(), "Book", R.drawable.location));
-                    Log.d("Marker", "x:" + transferScaleX(book.getScaleX()) + " y:" + transferScaleY(book.getScaleY()));
+                    mMarkers.add(new Marker(0.5f, 0.5f, 1, "Me", R.drawable.arrow_u)); // 自身位置标记
+                    if (book != null) {
+                        mMarkers.add(new Marker(transferScaleX(book.getScaleX()), transferScaleY(book.getScaleY()), book.getFloorZ(), "Book", R.drawable.location));
+                        Log.d("Marker", "x:" + transferScaleX(book.getScaleX()) + " y:" + transferScaleY(book.getScaleY()));
+                    }
                     mMapContainer.setMarkers(mMarkers);
                     mMapContainer.setOnMarkerClickListener(LocateActivity.this);
                     Log.d("INIT", "init successfully");
@@ -402,6 +428,40 @@ public class LocateActivity extends AppCompatActivity implements MapContainer.On
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // 判断当前是加速度感应器还是地磁感应器
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            //赋值调用clone方法
+            accelerometerValues = event.values.clone();
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            //赋值调用clone方法
+            magneticValues = event.values.clone();
+        }
+        float[] R = new float[9];
+        float[] values = new float[3];
+        SensorManager.getRotationMatrix(R, null, accelerometerValues, magneticValues);
+        sensorManager.getOrientation(R, values);
+        // Log.d("Main", "values[0] :" + Math.toDegrees(values[0]));
+        //values[0]的取值范围是-180到180度。
+        //+-180表示正南方向，0度表示正北，-90表示正西，+90表示正东
+
+        float rotateDegree = (float) Math.toDegrees(values[0]);
+        if (Math.abs(rotateDegree - lastRotateDegree) > 1) {
+            RotateAnimation animation = new RotateAnimation(lastRotateDegree, rotateDegree, Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF, 0.5f);
+            animation.setFillAfter(true);
+            if (mMarkers.size() > 0)
+                mMarkers.get(0).getMarkerView().startAnimation(animation); //动画效果转动传感器
+            lastRotateDegree = rotateDegree;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 
 }

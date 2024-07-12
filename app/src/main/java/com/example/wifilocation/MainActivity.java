@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         initFragment();
         initImageView();
-        showFragment(0);
+        showFragment(1);
 
         linearLayout1.setOnClickListener(this);
         linearLayout2.setOnClickListener(this);

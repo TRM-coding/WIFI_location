@@ -31,11 +31,11 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        editTextPhone = findViewById(R.id.msg);
+        editTextPhone = findViewById(R.id.phone);
         editTextPassword = findViewById(R.id.pwd);
         editTextPassword2 = findViewById(R.id.pwd2);
-        registerButton = findViewById(R.id.reg);
-        backButton = findViewById(R.id.back);
+        registerButton = findViewById(R.id.button_register);
+        backButton = findViewById(R.id.button_back);
         // 注册按钮
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
