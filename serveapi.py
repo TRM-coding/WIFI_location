@@ -88,9 +88,9 @@ def navigate():
     # z=req['sz']
     road_list=navi.spfa(req)
     # print(road_list)
-    ans={str(i): v for i, v in enumerate(road_list)}
+    ans=[{"room":v} for v in road_list]
     # print(ans)
-    return jsonify(road_list) 
+    return jsonify(ans) 
     
 
 

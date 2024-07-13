@@ -161,5 +161,3 @@ class DNN(nn.Module):
     #     return res,loss
         
         
-
-

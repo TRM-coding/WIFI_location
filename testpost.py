@@ -3,7 +3,7 @@ import time
 import requests
 
 # url="http://i-2.gpushare.com:40003/chat"
-url="http://i-2.gpushare.com:40003/location"
+url="http://i-2.gpushare.com:40003/navigate"
 
 prompt="今天海淀天气怎么样？"
 
@@ -21,14 +21,12 @@ mac_dt={
     "mac_strength":[-55,-55,-64,-71,-72,-72,-75,-75,-81,-83,-88,-89,-95]
 }
 
-# dict={
-#     "sx":1,
-#     "sy":1,
-#     "sz":4,
-#     "bookid":3}
+dict={
+    "room":401,
+    "book_id":3}
 
 # json_obj=json.dumps(json_dt)
-json_obj=json.dumps(mac_dt)
+json_obj=json.dumps(dict)
 headers = {'Content-Type': 'application/json'}
 since=time.time()
 req=requests.post(url,data=json_obj,headers=headers)                                                                          

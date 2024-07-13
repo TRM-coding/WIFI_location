@@ -31,7 +31,8 @@ class navigator:
     def spfa(self,input_data):
         # json=js.loads(input_data)
         json=input_data
-        s=(json['roomid'])
+        print(json)
+        s=(int(json['room']))
         conn=pymysql.connect(
             host='localhost',
             user='root',
@@ -40,16 +41,16 @@ class navigator:
         )
         cursor=conn.cursor()
         # sql='select bookx,booky,bookz from books where bookid=%s'
-        sql='select Location from books where ID=%s'
-        cursor.execute(sql,(json['bookid']))
+        sql='select roomid from books where ID=%s'
+        cursor.execute(sql,(json['book_id']))
         results=cursor.fetchall()
         print(results)
-        results= literal_eval(results[0][0])
+        # results= literal_eval(results[0][0])
 
         cursor.close()
         conn.close()
-        t=results
-        dir=[[1,0],[-1,0],[0,-1],[0,1]]
+        t=int(results[0][0])
+        # dir=[[1,0],[-1,0],[0,-1],[0,1]]
         q=[]
         vis={}
         dist={}
@@ -100,7 +101,9 @@ class navigator:
         while(t!=s):
             road.append(t)
             t=pre[t]
-        road.append(s)
+        # road.append(s)
         road.reverse()
         # ans={str(i): v for i, v in enumerate(road)}
         return road
+    
+    {"room":415, "room":420, 3:401}
