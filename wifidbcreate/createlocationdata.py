@@ -15,7 +15,7 @@ def getmacs(data_dir):
     return macs
 
 def create_locationdata(macs):
-    sql="create table locationdata3 (x int,y int,z int,"
+    sql="create table locationdata4 (locid int,x int,y int,z int,"
     for maci in macs:
         mactmp='a'+maci
         mactmp=mactmp.replace(':','_')
@@ -35,14 +35,16 @@ def create_locationdata(macs):
     conn.commit()
 
 def insert_locationdata(data_dir):
+    id=0
     for file in os.listdir(data_dir):
         if file.endswith(".json"):
             with open(os.path.join(data_dir,file),'r')as f:
                 for line in f:
+                    id=id+1
                     data=json.loads(line)
                     maclist=data['wifimac']
                     strlist=data['wifistrength']
-                    sql='insert into locationdata3 (x,y,z,'
+                    sql='insert into locationdata4 (locid,x,y,z,'
                     for maci in maclist:
                         mactmp='a'+maci
                         mactmp=mactmp.replace(':','_')
@@ -52,12 +54,15 @@ def insert_locationdata(data_dir):
                     x=data['lx']
                     y=data['ly']
                     z=data['lz']
-                    sql+=f'room) values ({x},{y},{z},'
+                    sql+=f'room) values ({id},{x},{y},{z},'
                     for stri in strlist:
                         sql+=str(stri)
                         sql+=','
                     filename, ext = os.path.splitext(file)
-                    sql+=f'{filename})'
+                    if filename!='444':
+                        sql+=f'{filename})'
+                    else:
+                        sql+=f'{x})'
                     conn=pymysql.connect(
                         host="localhost",
                         user='root',
@@ -87,12 +92,17 @@ def insert_wifimac(maclist):
 
 
 if __name__ =='__main__':
-    maclist=getmacs('./DNN')
+    maclist=getmacs('./wifidbcreate/datas')
     # print(maclist)
     create_locationdata(maclist)
-    insert_locationdata('./DNN')
+    insert_locationdata('./wifidbcreate/datas')
     # insert_wifimac(maclist)
     print(len(maclist))
 
 
 # ALTER TABLE locationdata2 ADD COLUMN locid INT AUTO_INCREMENT PRIMARY KEY;
+
+# sql='show columns from locationdata4'
+# cursor.excute(sql)
+# res=cursor.fetchall()
+# res=res[4:-1]

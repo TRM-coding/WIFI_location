@@ -31,9 +31,9 @@ class dataloader:
 
             # print(lable_tmp)
             
-            for _ in range(15):
-                noise = np.random.uniform(-0.02, 0.02, len(input_tmp))  # 生成噪声
-                noisy_data = [x + n for x, n in zip(input_tmp, noise)]  # 将噪声添加到数据中
+            for _ in range(200):
+                noise = np.random.uniform(-6*self.rate, 6*self.rate, len(input_tmp))  # 生成噪声
+                noisy_data = [x + n if x != -127*self.rate else x for x, n in zip(input_tmp, noise)]   # 将噪声添加到数据中
                 self.input.append(tuple(noisy_data))  # 将带有噪声的数据添加到输入中
                 self.label.append(lable_tmp)  # 对于每个带有噪声的数据，我们使用相同的标签
         paired = list(zip(self.input, self.label))

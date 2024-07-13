@@ -105,5 +105,3 @@ class navigator:
         road.reverse()
         # ans={str(i): v for i, v in enumerate(road)}
         return road
-    
-    {"room":415, "room":420, 3:401}

@@ -54,6 +54,8 @@ for i,datai in enumerate(jsondatas):
     for j,maci in enumerate(macs):
         if maci in inputmacs:
             input_tmp[j]=inputstr[inputmacs.index(maci)]
+    for j,_ in enumerate(input_tmp):
+        input_tmp[j]=input_tmp[j]*-0.005
     pre_x=modelx.predict(input_tmp)
     pre_y=modely.predict(input_tmp)
     pre_z=modelz.predict(input_tmp)
