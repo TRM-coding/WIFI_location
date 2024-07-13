@@ -35,12 +35,13 @@
             android:textSize="30sp" />
 
         <ImageView
-            android:id="@+id/activity_chat_imageView_settings"
+            android:id="@+id/activity_chat_imageView_more"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginRight="1dp"
             android:layout_weight="1"
-            android:scaleType="center" />
+            android:scaleType="center"
+            app:srcCompat="@drawable/more"/>
     </LinearLayout>
 
     <View

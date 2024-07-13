@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,27 +42,18 @@ import java.util.TimeZone;
 public class ChatActivity extends AppCompatActivity {
 
     private List<Map<String, Object>> data = new ArrayList<>();
-
     private RecyclerView recyclerView;
-
     private TextView textView1;
-
     private ImageView back;
-
+    private ImageView more;
+    private double temperature = 0.5;// 记录模型创造性
     private Button button1;
-
     private EditText editText;
-
     private LinearLayout linearLayout;
-
     private Boolean isSend = false;
-
     private Map<String, Object> result = new HashMap<>();
-
     private Intent intent;
-
     private String name;
-
     private MessageAdapter adapter;
 
     @Override
@@ -72,6 +65,7 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.activity_chat_recyclerView);
         textView1 = findViewById(R.id.activity_chat_textView1);
         back = findViewById(R.id.activity_chat_imageView_back);
+        more = findViewById(R.id.activity_chat_imageView_more);
         button1 = findViewById(R.id.activity_chat_button);
         editText = findViewById(R.id.activity_chat_editText);
 
@@ -104,6 +98,7 @@ public class ChatActivity extends AppCompatActivity {
         setbackListener();
         setEditTextListener();
         setSendMsgListener();
+        setMoreListener();
     }
 
     /**
@@ -169,7 +164,7 @@ public class ChatActivity extends AppCompatActivity {
                     JSONObject jsonParam = new JSONObject();
                     // 添加你的数据
                     jsonParam.put("msg", msg);
-                    jsonParam.put("temperature", 0.5);
+                    jsonParam.put("temperature", temperature);
                     // 写入数据
                     os.write(jsonParam.toString().getBytes());
                     os.flush();
@@ -203,6 +198,7 @@ public class ChatActivity extends AppCompatActivity {
 
     /**
      * 处理JSON数据
+     *
      * @param responseJson
      */
 
@@ -257,6 +253,44 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void setMoreListener() {
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Dialog dialog = new Dialog(ChatActivity.this);
+                dialog.setContentView(R.layout.dialog_temperature);
+                dialog.setTitle("设置温度");
+                SeekBar seekBar = dialog.findViewById(R.id.dialog_progress_seekBar);
+                // 初始化SeekBar的显示
+                int progress = (int) (temperature * 100); // 将温度值转换为0-100的进度
+                seekBar.setProgress(progress);
+
+                // 设置SeekBar的监听器
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        // 映射进度到0.1-0.9的范围
+                        temperature = 0.1 + (progress / 100.0) * 0.8;
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        // 开始拖动SeekBar时的操作
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // 停止拖动SeekBar时的操作
+                    }
+                });
+
+                // 显示对话框
+                dialog.show();
+            }
+        });
+    }
+
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
