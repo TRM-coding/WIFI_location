@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -130,10 +131,10 @@ public class LocateFragment extends Fragment {
                                 JSONObject bookObject = booksArray.getJSONObject(i);
                                 int id = bookObject.getInt("id");
                                 String name = bookObject.getString("name");
-                                float x = (float)bookObject.getDouble("lx");
-                                float y = (float)bookObject.getDouble("ly");
-                                float z = (float)bookObject.getDouble("lz");
-                                Book book = new Book(id, name,x,y,z);
+                                float x = (float) bookObject.getDouble("lx");
+                                float y = (float) bookObject.getDouble("ly");
+                                float z = (float) bookObject.getDouble("lz");
+                                Book book = new Book(id, name, x, y, z, "");
                                 bookList.add(book);
                             }
                             getActivity().runOnUiThread(new Runnable() {
@@ -147,12 +148,15 @@ public class LocateFragment extends Fragment {
 
                         } catch (JSONException e) {
                             Log.e("Network", "Error parsing JSON response", e);
+                            Toast.makeText(getContext(),"网络错误",Toast.LENGTH_LONG).show();
                         }
                     } else {
                         Log.d("Network", "Request failed with response code: " + responseCode);
+                        Toast.makeText(getContext(),"网络错误",Toast.LENGTH_LONG).show();
                     }
                 } catch (Exception e) {
                     Log.e("Network", "Exception", e);
+                    Toast.makeText(getContext(),"网络错误",Toast.LENGTH_LONG).show();
                 }
                 loadingDialog.dismiss();
             }

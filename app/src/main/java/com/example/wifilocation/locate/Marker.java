@@ -9,16 +9,18 @@ public class Marker {
     private String name;
     private ImageView markerView;//标记图标
     private int imgSrcId;//标记图标资源id
+    private String room;
 
     public Marker() {
     }
 
-    public Marker(float scaleX, float scaleY, float floorZ, String name, int imgSrcId) {
+    public Marker(float scaleX, float scaleY, float floorZ, String name, int imgSrcId, String room) {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
         this.floorZ = floorZ;
         this.name = name;
         this.imgSrcId = imgSrcId;
+        this.room = room;
     }
 
     public float getScaleX() {
@@ -67,6 +69,14 @@ public class Marker {
 
     public ImageView getMarkerView() {
         return markerView;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
     }
 
     @Override

@@ -15,12 +15,13 @@ public class Book extends Marker implements Parcelable {
         this.name = name;
     }
 
-    public Book(int id, String name, float x, float y, float z) {
+    public Book(int id, String name, float x, float y, float z, String room) {
         this.id = id;
         this.name = name;
         setScaleX(x);
         setScaleY(y);
         setFloorZ(z);
+        setRoom(room);
     }
 
     // Getters and Setters

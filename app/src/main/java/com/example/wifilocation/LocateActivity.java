@@ -1,7 +1,10 @@
 package com.example.wifilocation;
 
+import static java.lang.Thread.sleep;
+
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.RectF;
 import android.hardware.Sensor;
@@ -16,6 +19,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +32,7 @@ import com.example.wifilocation.locate.Book;
 import com.example.wifilocation.locate.MapContainer;
 import com.example.wifilocation.locate.MapView;
 import com.example.wifilocation.locate.Marker;
+import com.suke.widget.SwitchButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,6 +70,12 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
     float[] accelerometerValues = new float[3];
     float[] magneticValues = new float[3];
 
+    // 切换精确定位
+    SwitchButton switchButton;
+    boolean isExactLoc = false;
+    // 切换室外导航
+    Button outdoor;
+
     Map<String, float[]> map = new HashMap<>();
 
     private Handler handler;
@@ -99,7 +110,11 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
         textCurFloor = findViewById(R.id.text_current_floor);
         mMapContainer = findViewById(R.id.mc_map);
         back = findViewById(R.id.back);
+        switchButton = findViewById(R.id.switch_button);
+        outdoor = findViewById(R.id.outdoor_button);
         setbackListener();
+        setOutdoorListener();
+
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         //加速度感应器
@@ -109,39 +124,47 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
         sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
 
+        switchButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                if (isChecked) {
+                    Toast.makeText(getApplicationContext(), "开启精确定位", Toast.LENGTH_SHORT).show();
+                    isExactLoc = true;
+                } else {
+                    Toast.makeText(getApplicationContext(), "关闭精确定位", Toast.LENGTH_SHORT).show();
+                    isExactLoc = false;
+                }
+            }
+        });
+        
+
         // 获得当前显示market的书本
         book = getIntent().getParcelableExtra("book");
         // 初始化地图
         initMap();
-        // 初始化 Handler 和 Runnable
         handler = new Handler();
         updateRunnable = new Runnable() {
             @Override
             public void run() {
-                // 改变坐标位置
-                MapView mMapView = mMapContainer.getMapView();
-                if (mMapView != null) {
-                    mMapView.getOnChangedListner().onChanged(mMapView.getMatrixRect());
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textCurFloor.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textCurFloor.setText("当前房间" + room);
-                                    Log.d("ROOM_CHANGE", "当前房间" + room);
-                                }
-                            });
-                        }
-                    });
-                }
-
                 // 开始定位，并更新坐标
-                getWifiFinger(context, activity);
+                if (isExactLoc) {
+                    // 清空最短路径
+                    if (mMarkers.size() > 2)
+                        mMarkers.subList(2, mMarkers.size()).clear();
+
+                } else {
+                    getWifiFinger(context, activity);
+                }
                 // 绘制最短路径
                 drawShortestPath();
-                // 延迟3秒后再次执行
-                handler.postDelayed(this, 3000);
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                // 改变坐标位置
+                updateMap();
+                handler.postDelayed(this, 2000);
             }
         };
         handler.post(updateRunnable);
@@ -160,7 +183,30 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
     }
 
     /**
-     * 接收当前手机位置的WIFI指纹
+     * 更新地图上面坐标
+     */
+    private void updateMap() {
+        // 改变坐标位置
+        MapView mMapView = mMapContainer.getMapView();
+        if (mMapView != null) {
+            LocateActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textCurFloor.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            textCurFloor.setText("当前房间" + room);
+                            Log.d("ROOM_updateMap", "序列：" + mMarkers.toString());
+                        }
+                    });
+                }
+            });
+            mMapView.getOnChangedListner().onChanged(mMapView.getMatrixRect());
+        }
+    }
+
+    /**
+     * 得到房间定位
      *
      * @param context
      * @param activity
@@ -232,13 +278,11 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
                                 response.append(inputLine);
                             }
                             in.close();
-                            // 输出收到的完整 JSON 字符串
-                            Log.d("Network", "Received JSON: " + response.toString());
                             // 依据房间定位
                             try {
                                 JSONObject jsonResponse = new JSONObject(response.toString());
                                 room = jsonResponse.getString("room");
-                                Log.d("ROOM", room);
+                                Log.d("ROOM_getWifiFinger", "当前位置" + room);
 
                                 Marker m = mMarkers.get(0);
                                 float[] array = map.get(room);
@@ -266,6 +310,48 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    /**
+     * 得到精确定位
+     *
+     * @param context
+     * @param activity
+     */
+    private void getExactWifiFinger(Context context, Activity activity) {
+        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            System.out.println("No Permission");
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+        boolean success = wifiManager.startScan();
+        List<Pair> params = new ArrayList<>();
+        List<ScanResult> results = wifiManager.getScanResults();
+        StringBuilder newText = new StringBuilder();
+        for (ScanResult result : results) {
+            String ssid = result.SSID;
+            String bssid = result.BSSID;
+            int rssi = result.level;
+            if (Objects.equals(ssid, "phone.wlan.bjtu")) {
+                Pair pair = new Pair(rssi, bssid);
+                params.add(pair);
+            }
+        }
+        params.sort(new Comparator<Pair>() {
+            @Override
+            public int compare(Pair p1, Pair p2) {
+                return Integer.compare(p2.first, p1.first);
+            }
+        });
+        Data data = new Data();
+        for (int i = 0; i < params.size(); ++i) {
+            newText.append("(").append(params.get(i).second).append(",").append(params.get(i).first).append(")");
+            if (i < params.size() - 1) newText.append(",");
+            data.wifimac.add(params.get(i).second);
+            data.wifistrength.add(params.get(i).first);
+        }
+        Log.d("DATA", data.toString());
+    }
 
     /**
      * 绘制最短路路径
@@ -283,8 +369,8 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
                     conn.setDoOutput(true);
                     OutputStream os = conn.getOutputStream();
                     JSONObject jsonParam = new JSONObject();
-                    jsonParam.put("from", room);
-                    jsonParam.put("to", "408");
+                    jsonParam.put("room", 415);
+                    jsonParam.put("book_id", 1);
                     // 写入数据
                     os.write(jsonParam.toString().getBytes());
                     os.flush();
@@ -301,26 +387,24 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
                         }
                         in.close();
                         // 输出收到的完整 JSON 字符串
-                        Log.d("Network", "Received JSON: " + response.toString());
+                        Log.d("ROOM_shortPathArray", "Received JSON: " + response.toString());
                         // 将路径序列模拟成一个个房间
                         try {
-                            JSONObject jsonResponse = new JSONObject(response.toString());
-                            String roomsString = jsonResponse.getString("respond");
-                            JSONArray roomsArray = new JSONArray(roomsString);
+                            JSONArray roomsArray = new JSONArray(response.toString());
                             // 删除原先的路径坐标
                             if (mMarkers.size() > 2) {
                                 mMarkers.subList(2, mMarkers.size()).clear();
-                                Log.d("ROOM_CLEAR", mMarkers.toString());
+                                Log.d("ROOM_clear", "清空路径坐标");
                             }
                             for (int i = 0; i < roomsArray.length(); i++) {
                                 JSONObject roomObject = roomsArray.getJSONObject(i);
                                 String r = roomObject.getString("room");
                                 float[] array = map.get(r);
                                 assert array != null;
-                                mMarkers.add(new Marker(array[1] / 33, array[0] / 92 + 0.05f, 4f, r, R.drawable.dot));
-                                Log.d("ROOM_ADD", mMarkers.toString());
+                                mMarkers.add(new Marker(array[1] / 33, array[0] / 92 + 0.05f, 4f, r, R.drawable.dot, r));
                             }
                             mMapContainer.setMarkers(mMarkers);
+                            Log.d("ROOM_updNewArray", "更新路径坐标");
                             mMapContainer.setOnMarkerClickListener(LocateActivity.this);
                         } catch (JSONException e) {
                             Log.e("Network", "Error parsing JSON response", e);
@@ -348,15 +432,17 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
         map.put("406", new float[]{84, 26});
         map.put("408", new float[]{86, 16});
         map.put("409", new float[]{76, 16});
+        map.put("420", new float[]{6, 8});
+        map.put("401", new float[]{6, 10});
         LocateActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mMapContainer != null) {
                     mMapContainer.getMapView().setImageResource(R.drawable.map);
                     mMarkers = new ArrayList<>();
-                    mMarkers.add(new Marker(0.5f, 0.5f, 1, "Me", R.drawable.arrow_u)); // 自身位置标记
+                    mMarkers.add(new Marker(0.5f, 0.5f, 1, "Me", R.drawable.arrow_u, "")); // 自身位置标记
                     if (book != null) {
-                        mMarkers.add(new Marker(transferScaleX(book.getScaleX()), transferScaleY(book.getScaleY()), book.getFloorZ(), "Book", R.drawable.location));
+                        mMarkers.add(new Marker(transferScaleX(book.getScaleX()), transferScaleY(book.getScaleY()), book.getFloorZ(), "Book", R.drawable.location, ""));
                         Log.d("Marker", "x:" + transferScaleX(book.getScaleX()) + " y:" + transferScaleY(book.getScaleY()));
                     }
                     mMapContainer.setMarkers(mMarkers);
@@ -373,19 +459,6 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
     @Override
     public void onClick(View view, int position) {
         Toast.makeText(LocateActivity.this, "你点击了第" + position + "个marker", Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * 更新地图上面的标记
-     */
-    private void updateMap() {
-        RectF rectF = new RectF();
-        rectF.left = mMapContainer.getLeft();
-        rectF.top = mMapContainer.getTop();
-        rectF.right = mMapContainer.getRight();
-        rectF.bottom = mMapContainer.getBottom();
-
-        mMapContainer.onChanged(rectF);
     }
 
 
@@ -428,6 +501,21 @@ public class LocateActivity extends AppCompatActivity implements SensorEventList
                 finish();
             }
         });
+    }
+
+    private void setOutdoorListener() {
+        outdoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBottomRightButtonClick(view);
+            }
+        });
+    }
+
+    public void onBottomRightButtonClick(View view) {
+        // 处理按钮点击事件，跳转到 OutdoorActivity
+        Intent intent = new Intent(this, OutdoorActivity.class);
+        startActivity(intent);
     }
 
     @Override
