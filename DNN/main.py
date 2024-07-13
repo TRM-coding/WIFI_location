@@ -1,4 +1,4 @@
-import DNN
+import DNN2
 import dataloader
 import torch
 from torch import nn
@@ -11,7 +11,7 @@ if __name__ =='__main__':
     lr=0.000000001
     ep=5000
 
-    modelx=DNN.DNN()
+    modelx=DNN2.DNN()
     lable_x=[tp[0] for tp in train_lable]
     modelx.load_train_data(train_input,lable_x)
     modelx.init()
@@ -19,7 +19,7 @@ if __name__ =='__main__':
     modelx.Train(ep,lr)
     modelx.eval()
 
-    modely=DNN.DNN()
+    modely=DNN2.DNN()
     lable_y=[tp[1] for tp in train_lable]
     modely.load_train_data(train_input,lable_y)
     modely.init()
@@ -27,7 +27,7 @@ if __name__ =='__main__':
     modely.Train(ep,lr)
     modely.eval()
 
-    modelz=DNN.DNN()
+    modelz=DNN2.DNN()
     lable_z=[tp[2] for tp in train_lable]
     modelz.load_train_data(train_input,lable_z)
     modelz.init()

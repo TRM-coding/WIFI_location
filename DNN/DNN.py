@@ -9,21 +9,6 @@ class DNN(nn.Module):
         super(DNN, self).__init__()
         self.device= torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.relu = nn.LeakyReLU(negative_slope=0.5)
-
-    def load_train_data(self,train_input,train_lable):
-        self.train_data=torch.tensor(train_input,dtype=torch.float32).to(self.device)
-        self.train_lable=torch.tensor(train_lable,dtype=torch.float32).to(self.device)
-        self.train_lable=self.train_lable.long()
-
-    # def relu(self,x):
-        
-    #     a = torch.zeros_like(x)
-    #     return torch.max(x, a)
-    
-
-
-    
-    def init(self):
         nums_input=42
         nums_output=5
         nums_hiddens1=1024
@@ -32,8 +17,6 @@ class DNN(nn.Module):
         nums_hiddens4=128
         nums_hiddens5=64
         nums_hiddens6=32
-
-
 
         sigma=0.23
         
@@ -87,10 +70,10 @@ class DNN(nn.Module):
                      self.w11,self.b11,
                      self.w12,self.b12]
         self.loss = nn.CrossEntropyLoss()
+
+        
     
     def forward(self, x):
-        # print(x)
-        # input()
         H1 = self.relu(x @ self.w1 + self.b1)
         H2 = self.relu(H1 @ self.w2 + self.b2)
         H3 = self.relu(H2 @ self.w3 + self.b3)
@@ -104,60 +87,13 @@ class DNN(nn.Module):
         H11 = self.relu(H10 @ self.w11 + self.b11)
         Out = H11 @ self.w12 + self.b12
         return Out
+    
+    def predict(self,input):
+        input=torch.tensor(input,dtype=torch.float32).to(self.device)
+        output=nn.functional.softmax(self.forward(input))
+        output=torch.argmax(output).item()
+        return output
 
     
-    def Train(self,epochs,lr):
-        self.to(self.device)
-        optimizer=torch.optim.SGD(self.params,lr=lr)
-        warmup_epochs=0.1*epochs
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=0.000000001)
-        warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda epoch: epoch / warmup_epochs)
-        
-        loss_list=[]
-        acc_list=[]
-        for epoch in range(epochs):
-            outputs=self.forward(self.train_data)
-            loss=self.loss(outputs,self.train_lable)
-
-            # 计算准确率
-            _, predicted = torch.max(nn.functional.softmax(outputs.data), 1)
-            total = self.train_lable.size(0)
-            correct = (predicted == self.train_lable).sum().item()
-            acc = correct / total
-            acc_list.append(acc)
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            if epoch<warmup_epochs:
-                warmup_scheduler.step()
-            else:
-                scheduler.step()
-
-            print(f'Epoch:{epoch} loss:{loss.item()} acc:{acc}')
-            loss_list.append(loss.item())
-        return loss_list, acc_list
-
-
-
-        # torch.save(self.state_dict(),'./model.pth')
-        plt.figure()
-        plt.plot(range(epochs), loss_list)
-        plt.title('Training Loss Curve')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        # plt.show()
-        # plt.savefig('./loss_curve.png')
     
-    def from_pretrained(self,model_path):
-        self.load_state_dict(torch.load(model_path))
-        return self
-    
-    # def predict(self,input):
-    #     input=torch.tensor(input,dtype=torch.float32).to(self.device)
-        
-    #     res=self.forward(input)
-    #     loss=self.loss(res,self.train_lable)
-    #     return res,loss
-        
         

@@ -5,6 +5,8 @@ import json
 import requests
 import navigator
 import kNN
+import preciseLocation
+import pymysql
 app=Flask(__name__)
 
 navi=navigator.navigator()
@@ -106,6 +108,52 @@ def location():
     res=knn.classify(req)
     print(res)
     return jsonify(res)
+
+@app.route("/precise_location",methods=['POST'])
+def precise_location():
+    pre=preciseLocation.preciseLocation()
+    req=request.get_json()
+    print (req[0])
+    conn=pymysql.connect(
+            host='localhost',
+            user='root',
+            password='123',
+            database='WIFI'
+    )
+    cursor=conn.cursor()
+    input=[]
+    for jsoni in req:
+        wifimacs=jsoni['mac_list']
+        wifirssi=jsoni['mac_strength']
+        sql="SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'locationdata3' AND table_schema = 'WIFI'"
+        cursor.execute(sql)
+        dim=cursor.fetchall()[0][0]-4
+        input_tmp=[-127 for i in range(dim)]
+        sql="show columns from locationdata3"
+        cursor.execute(sql)
+        macs=cursor.fetchall()
+        mac_tp=macs[3:-1]
+        macs_tmp = [item[0] for item in mac_tp]
+        for k in macs_tmp:
+            print(type(k))
+        macs=[item[1:].replace('_',':') for item in macs_tmp]
+        print(macs)
+        print(wifimacs)
+        for i in range (dim):
+            if macs[i] in wifimacs:
+                print(i)
+                input_tmp[i]=wifirssi[wifimacs.index(macs[i])]
+        input.append(input_tmp)
+
+    print(input)
+    x,y,z=pre.predict(input)
+    dic={'lx':x,
+    'ly':y,
+    'lz':z
+    }
+    return jsonify(dic)
+
+
 
 
 
