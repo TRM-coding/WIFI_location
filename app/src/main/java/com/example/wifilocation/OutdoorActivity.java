@@ -1,10 +1,14 @@
 package com.example.wifilocation;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.pm.PackageManager;
+import android.view.View;
+import android.widget.Button;
 
 
 import androidx.core.app.ActivityCompat;
@@ -19,6 +23,7 @@ import com.amap.api.maps.model.MyLocationStyle;
 public class OutdoorActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 101;
     MapView mMapView = null;
+    Button indoor;
 
     @Override
     protected void onDestroy() {
@@ -51,7 +56,7 @@ public class OutdoorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        // EdgeToEdge.enable(this);
 //        setContentView(R.layout.activity_main);
 //        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 //            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -61,6 +66,8 @@ public class OutdoorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_outdoor);
         //获取地图控件引用
         mMapView = findViewById(R.id.map);
+        indoor = findViewById(R.id.indoor_button);
+        setIndoorListener();
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         MapsInitializer.updatePrivacyShow(this, true, true);
         MapsInitializer.updatePrivacyAgree(this, true);
@@ -85,5 +92,21 @@ public class OutdoorActivity extends AppCompatActivity {
         aMap.setMyLocationEnabled(true);// 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
 
         aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
+    }
+
+    private void setIndoorListener() {
+        indoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onIndoorButtonClick(view);
+            }
+        });
+    }
+
+
+    public void onIndoorButtonClick(View view) {
+        Intent intent = new Intent(this, LocateActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

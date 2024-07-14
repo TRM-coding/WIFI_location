@@ -34,7 +34,7 @@ public class SelfFragment extends Fragment {
         aboutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "制作团队：Tian Ruiming, Xin Yuzhe, Rong Hanji, Su Shiq.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "制作团队：Tian Ruiming, Xin Yuzhe, Rong Hanji, Su Shiqi.", Toast.LENGTH_SHORT).show();
             }
         });
 

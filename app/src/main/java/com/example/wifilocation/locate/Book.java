@@ -6,22 +6,21 @@ import android.os.Parcelable;
 public class Book extends Marker implements Parcelable {
     private int id;
     private String name;
+    private String book_room;
 
     // Constructors
-    public Book() { }
+    public Book() {
+    }
 
     public Book(int id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public Book(int id, String name, float x, float y, float z, String room) {
+    public Book(int id, String name, String book_room) {
         this.id = id;
         this.name = name;
-        setScaleX(x);
-        setScaleY(y);
-        setFloorZ(z);
-        setRoom(room);
+        this.book_room = book_room;
     }
 
     // Getters and Setters
@@ -41,14 +40,16 @@ public class Book extends Marker implements Parcelable {
         this.name = name;
     }
 
+    public String getBook_Room() {
+        return book_room;
+    }
+
     // Parcelable implementation
     protected Book(Parcel in) {
         id = in.readInt();
         name = in.readString();
+        book_room = in.readString();
         super.setName("Book");
-        setScaleX(in.readFloat());
-        setScaleY(in.readFloat());
-        setFloorZ(in.readFloat());
     }
 
     public static final Creator<Book> CREATOR = new Creator<Book>() {
@@ -72,8 +73,11 @@ public class Book extends Marker implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(name);
-        dest.writeFloat(getScaleX());
-        dest.writeFloat(getScaleY());
-        dest.writeFloat(getFloorZ());
+        dest.writeString(book_room);
+    }
+
+    @Override
+    public String toString() {
+        return this.name + this.book_room;
     }
 }
