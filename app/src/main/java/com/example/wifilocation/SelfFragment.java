@@ -39,13 +39,6 @@ public class SelfFragment extends Fragment {
         });
 
 
-        RelativeLayout settingBtn = view.findViewById(R.id.setting_btn);
-        settingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), "尽情期待", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         return view;
     }
