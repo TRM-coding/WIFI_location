@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">书山智寻</string>
+    <string name="base_url">http://10.60.136.41:5000/</string>
+</resources>
+
+<!--http://i-2.gpushare.com:40003/-->
+<!--http://10.60.136.41:5000/-->
