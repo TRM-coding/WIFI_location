@@ -3,6 +3,7 @@ package com.example.wifilocation;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -22,6 +24,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.wifilocation.locate.Book;
 import com.example.wifilocation.locate.BookAdapter;
+import com.roger.catloadinglibrary.CatLoadingView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,7 +49,7 @@ public class LocateFragment extends Fragment {
     private ArrayList<Book> books;
     private BookAdapter adapter;
 
-    private LoadingDialog loadingDialog;
+    private CatLoadingView loading;
 
     public LocateFragment() {
     }
@@ -82,8 +85,8 @@ public class LocateFragment extends Fragment {
 
     private void sendHttpRequest(String msg) {
         // 显示加载动画
-        loadingDialog = new LoadingDialog(getContext());
-        loadingDialog.show();
+        loading = new CatLoadingView();
+        loading.show(getChildFragmentManager(), "加载中");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -97,7 +100,7 @@ public class LocateFragment extends Fragment {
                     OutputStream os = conn.getOutputStream();
                     JSONObject jsonParam = new JSONObject();
                     jsonParam.put("msg", msg);
-                    jsonParam.put("temperature", 0.5);
+                    jsonParam.put("temperature", 0.3);
                     Log.d("DATA", "Post data:" + jsonParam);
                     os.write(jsonParam.toString().getBytes());
                     os.flush();
@@ -122,7 +125,6 @@ public class LocateFragment extends Fragment {
                         try {
                             JSONObject jsonResponse = new JSONObject(jsonString);
                             String booksString = jsonResponse.getString("respond");
-                            Log.d("BOOK", booksString);
                             JSONArray booksArray = new JSONArray(booksString);
                             List<Book> bookList = new ArrayList<>();
 
@@ -130,10 +132,12 @@ public class LocateFragment extends Fragment {
                                 JSONObject bookObject = booksArray.getJSONObject(i);
                                 int id = bookObject.getInt("id");
                                 String name = bookObject.getString("name");
-                                float x = (float)bookObject.getDouble("lx");
-                                float y = (float)bookObject.getDouble("ly");
-                                float z = (float)bookObject.getDouble("lz");
-                                Book book = new Book(id, name,x,y,z);
+                                float x = 0;
+                                float y = 0;
+                                float z = 0;
+                                String room = bookObject.getString("room");
+                                Log.d("Book", "name:" + name + " " + "room:" + room);
+                                Book book = new Book(id, name, room);
                                 bookList.add(book);
                             }
                             getActivity().runOnUiThread(new Runnable() {
@@ -147,14 +151,17 @@ public class LocateFragment extends Fragment {
 
                         } catch (JSONException e) {
                             Log.e("Network", "Error parsing JSON response", e);
+                            Toast.makeText(getContext(), "网络错误", Toast.LENGTH_LONG).show();
                         }
                     } else {
                         Log.d("Network", "Request failed with response code: " + responseCode);
+                        Toast.makeText(getContext(), "网络错误", Toast.LENGTH_LONG).show();
                     }
                 } catch (Exception e) {
                     Log.e("Network", "Exception", e);
+                    Toast.makeText(getContext(), "网络错误", Toast.LENGTH_LONG).show();
                 }
-                loadingDialog.dismiss();
+                loading.dismiss();
             }
         }).start();
     }

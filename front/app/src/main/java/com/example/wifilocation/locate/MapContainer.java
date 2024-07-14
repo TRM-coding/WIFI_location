@@ -135,37 +135,40 @@ public class MapContainer extends ViewGroup implements MapView.OnMapStateChanged
      * @param markers
      */
     public void setMarkers(List<Marker> markers) {
-        this.mMarkers = markers;
+        // 在主线程中执行
+        post(() -> {
+            this.mMarkers = markers;
 
-        // 创建一个列表来收集所有需要移除的视图
-        List<View> viewsToRemove = new ArrayList<>();
+            // 创建一个列表来收集所有需要移除的视图
+            List<View> viewsToRemove = new ArrayList<>();
 
-        /* 移除上次传入的所有marker(即移除已显示的markers) */
-        int count = getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
-            if (child != null) {
-                String childClassName = child.getClass().getSimpleName();
-                Object tag = child.getTag(R.id.is_marker);
-                if (tag instanceof Boolean && ((Boolean) tag).booleanValue()) {
-                    // 确认当前child是markerView即添加到列表中准备移除
-                    Log.d("MapContainer", "Removing marker: " + childClassName);
-                    viewsToRemove.add(child);
+            /* 移除上次传入的所有marker(即移除已显示的markers) */
+            int count = getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = getChildAt(i);
+                if (child != null) {
+                    String childClassName = child.getClass().getSimpleName();
+                    Object tag = child.getTag(R.id.is_marker);
+                    if (tag instanceof Boolean && ((Boolean) tag).booleanValue()) {
+                        // 确认当前child是markerView即添加到列表中准备移除
+                        Log.d("MapContainer", "Removing marker: " + childClassName);
+                        viewsToRemove.add(child);
+                    } else {
+                        Log.d("MapContainer", "Child at index " + i + " (" + childClassName + ") is not a marker");
+                    }
                 } else {
-                    Log.d("MapContainer", "Child at index " + i + " (" + childClassName + ") is not a marker");
+                    Log.d("MapContainer", "Child at index " + i + " is null");
                 }
-            } else {
-                Log.d("MapContainer", "Child at index " + i + " is null");
             }
-        }
 
-        // 统一移除所有收集到的视图
-        for (View view : viewsToRemove) {
-            removeView(view);
-        }
+            // 统一移除所有收集到的视图
+            for (View view : viewsToRemove) {
+                removeView(view);
+            }
 
-        // 初始化markers
-        initMarkers();
+            // 初始化markers
+            initMarkers();
+        });
     }
 
 

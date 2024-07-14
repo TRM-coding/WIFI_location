@@ -42,88 +42,93 @@ public class Login extends AppCompatActivity {
                 // 获取文本框的内容
                 String phone = editTextPhone.getText().toString();
                 String pwd = editTextPassword.getText().toString();
-                // 启动一个新的线程来发送HTTP请求
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // 创建URL对象
-                            Log.d("Network", phone + " " + pwd);
-                            // 10.60.136.41:5000
-                            // 172.17.0.3:8080
-                            URL url = new URL(getApplicationContext().getString(R.string.base_url) + "login");
-                            // 创建HttpURLConnection对象
-                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                            // 设置请求方法
-                            conn.setRequestMethod("POST");
-                            // 设置请求头为JSON
-                            conn.setRequestProperty("Content-Type", "application/json");
-                            // 设置输出流，以便发送POST请求
-                            conn.setDoOutput(true);
-                            // 获取输出流
-                            OutputStream os = conn.getOutputStream();
-                            // 创建一个JSONObject对象
-                            JSONObject jsonParam = new JSONObject();
-                            // 添加你的数据
-                            jsonParam.put("phone", phone);
-                            jsonParam.put("password", pwd);
-                            // 写入数据
-                            os.write(jsonParam.toString().getBytes());
-                            os.flush();
-                            os.close();
-                            // 获取响应码
-                            int responseCode = conn.getResponseCode();
-                            if (responseCode == 200) {
-                                // 请求成功，读取响应数据
-                                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                                StringBuilder response = new StringBuilder();
-                                String inputLine;
-                                while ((inputLine = in.readLine()) != null) {
-                                    response.append(inputLine);
-                                }
-                                in.close();
+                if (!phone.matches("\\d{11}")) {
+                    Toast.makeText(Login.this, "手机号格式不正确！", Toast.LENGTH_SHORT).show();
+                } else {
+                    // 启动一个新的线程来发送HTTP请求
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                // 创建URL对象
+                                Log.d("Network", phone + " " + Util.md5(pwd));
+                                // 10.60.136.41:5000
+                                // 172.17.0.3:8080
+                                URL url = new URL(getApplicationContext().getString(R.string.base_url) + "login");
+                                // 创建HttpURLConnection对象
+                                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                // 设置请求方法
+                                conn.setRequestMethod("POST");
+                                // 设置请求头为JSON
+                                conn.setRequestProperty("Content-Type", "application/json");
+                                // 设置输出流，以便发送POST请求
+                                conn.setDoOutput(true);
+                                // 获取输出流
+                                OutputStream os = conn.getOutputStream();
+                                // 创建一个JSONObject对象
+                                JSONObject jsonParam = new JSONObject();
+                                // 添加你的数据
+                                jsonParam.put("phone", phone);
+                                jsonParam.put("password", Util.md5(pwd));
+                                // 写入数据
+                                os.write(jsonParam.toString().getBytes());
+                                os.flush();
+                                os.close();
+                                // 获取响应码
+                                int responseCode = conn.getResponseCode();
+                                if (responseCode == 200) {
+                                    // 请求成功，读取响应数据
+                                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                                    StringBuilder response = new StringBuilder();
+                                    String inputLine;
+                                    while ((inputLine = in.readLine()) != null) {
+                                        response.append(inputLine);
+                                    }
+                                    in.close();
 
-                                // 输出收到的完整 JSON 字符串
-                                Log.d("Network", "Received JSON: " + response.toString());
+                                    // 输出收到的完整 JSON 字符串
+                                    Log.d("Network", "Received JSON: " + response.toString());
 
-                                try {
-                                    // 将响应转换为 JSONObject
-                                    JSONObject jsonResponse = new JSONObject(response.toString());
+                                    try {
+                                        // 将响应转换为 JSONObject
+                                        JSONObject jsonResponse = new JSONObject(response.toString());
 
-                                    // 处理返回的 JSON 数据示例
-                                    String result = jsonResponse.getString("result");
+                                        // 处理返回的 JSON 数据示例
+                                        String result = jsonResponse.getString("result");
 
-                                    // 根据 result 值显示不同的 Toast 消息
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if ("1".equals(result)) {
-                                                Toast.makeText(Login.this, "登录成功！", Toast.LENGTH_LONG).show();
-                                                // 登录成功后跳转到新的 Activity
-                                                Intent intent = new Intent(Login.this, MainActivity.class);
-                                                startActivity(intent);
-                                            } else {
-                                                Toast.makeText(Login.this, "手机号或密码错误！", Toast.LENGTH_LONG).show();
+                                        // 根据 result 值显示不同的 Toast 消息
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if ("1".equals(result)) {
+                                                    Toast.makeText(Login.this, "登录成功！", Toast.LENGTH_LONG).show();
+                                                    // 登录成功后跳转到新的 Activity
+                                                    Intent intent = new Intent(Login.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                } else {
+                                                    Toast.makeText(Login.this, "手机号或密码错误！", Toast.LENGTH_LONG).show();
+                                                }
                                             }
-                                        }
-                                    });
+                                        });
 
-                                } catch (JSONException e) {
-                                    Log.e("Network", "Error parsing JSON response", e);
-                                    Toast.makeText(Login.this,"服务器异常",Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        Log.e("Network", "Error parsing JSON response", e);
+                                        Toast.makeText(Login.this, "服务器异常", Toast.LENGTH_LONG).show();
+                                    }
+
+                                } else {
+                                    // 请求失败
+                                    Log.d("Network", "Request failed with response code: " + responseCode);
                                 }
 
-                            } else {
-                                // 请求失败
-                                Log.d("Network", "Request failed with response code: " + responseCode);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Log.e("Network", "Exception", e);
                             }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.e("Network", "Exception", e);
                         }
-                    }
-                }).start();
+                    }).start();
+                }
+
             }
         });
         // 注册按钮

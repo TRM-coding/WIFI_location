@@ -3,23 +3,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:padding="10dp"
+    android:background="@android:color/white">
 
     <TextView
         android:id="@+id/book_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginLeft="10dp"
-        android:text="name"
+        android:text="Book Title"
         android:textColor="#000000"
-        android:textSize="20sp" />
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingStart="10dp" />
 
     <ImageView
         android:id="@+id/book_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/position"
-        android:layout_gravity="center_vertical" />
+        android:src="@drawable/location"
+        android:layout_gravity="center_vertical"
+        android:padding="8dp" />
+
 </LinearLayout>

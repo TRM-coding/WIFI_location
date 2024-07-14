@@ -43,6 +43,26 @@
             android:layout_marginTop="16dp"
             android:layout_toRightOf="@id/back"
             android:layout_alignParentTop="true" />
+
+        <com.suke.widget.SwitchButton
+            android:id="@+id/switch_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_alignParentEnd="true" />
+
+        <!-- 新添加的按钮 -->
+        <Button
+            android:id="@+id/outdoor_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="切换室外"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp" />
+
     </RelativeLayout>
 
 </LinearLayout>
