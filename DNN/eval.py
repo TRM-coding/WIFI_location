@@ -30,12 +30,12 @@ cursor=conn.cursor()
 
 sql="SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'locationdata3' AND table_schema = 'WIFI'"
 cursor.execute(sql)
-dim=cursor.fetchall()[0][0]-4
+dim=cursor.fetchall()[0][0]-5
 
 sql="show columns from locationdata3"
 cursor.execute(sql)
 macs=cursor.fetchall()
-mac_tp=macs[3:-1]
+mac_tp=macs[3:-2]
 macs_tmp = [item[0] for item in mac_tp]
 for k in macs_tmp:
     print(type(k))

@@ -1,5 +1,3 @@
-import DNN2
-from DNN2 import DNN
 import torch
 from collections import Counter
 

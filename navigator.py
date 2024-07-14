@@ -27,6 +27,7 @@ class navigator:
             self.dic[result[0]].append(result[1])
             self.dic[result[1]].append(result[0])
             # self.posdic[result[0]]=(result[1],result[2],result[3],result[4])
+        # print(self.dic)
             
     def spfa(self,input_data):
         # json=js.loads(input_data)
@@ -44,7 +45,7 @@ class navigator:
         sql='select roomid from books where ID=%s'
         cursor.execute(sql,(json['book_id']))
         results=cursor.fetchall()
-        print(results)
+        # print(results)
         # results= literal_eval(results[0][0])
 
         cursor.close()
@@ -58,11 +59,11 @@ class navigator:
         q.append(s)
         vis[s]=True
         dist[s]=0
-        pre[s]=(-1,-1,-1)
+        pre[s]=-1
         while(q):
             now=q[0]
             # print(now)
-            q.pop()
+            q=q[1:]
             vis[now]=False
             for nxt in self.dic[now]:
                 if(dist.get(nxt,1e9)>dist[now]+1):
@@ -98,10 +99,14 @@ class navigator:
             #             vis[new]=True
             #             q.append(new)
         road=[]
+        if(t==s):
+            return road
+        t=pre[t]
         while(t!=s):
             road.append(t)
             t=pre[t]
         # road.append(s)
         road.reverse()
+        print(road)
         # ans={str(i): v for i, v in enumerate(road)}
         return road

@@ -93,7 +93,8 @@ def insert_wifimac(maclist):
 
 if __name__ =='__main__':
     maclist=getmacs('./wifidbcreate/datas')
-    # print(maclist)
+    print(len(maclist))
+    input()
     create_locationdata(maclist)
     insert_locationdata('./wifidbcreate/datas')
     # insert_wifimac(maclist)

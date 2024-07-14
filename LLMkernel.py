@@ -30,46 +30,40 @@ class LLMkernel:
         cursor.execute("select ID from books")
         bookid=cursor.fetchall()
         bookid=str(bookid)
-        cursor.execute("select Location from books")
+        cursor.execute("select roomid from books")
         booklc=cursor.fetchall()
-        booklc=str(bookid)
+        booklc=[item[0] for item in booklc]
+        booklc=str(booklc)
+        print(booklc)
         print("正在响应")
 
         template=f"""你是一个经验丰富的图书检索助手。
-        我们的图书馆中有这些书：{booklist},和这些书对应的id：{bookid},和这些书对应的位置：{booklc}
+        我们的图书馆中有这些书：{booklist},和这些书对应的id：{bookid},和这些书按照出现顺序对应的房间号：{booklc}
         现在用户提出这样的检索需求：{content}
         请你根据用户的检索需求，在图书馆中找寻符合用户要求的所有书籍用下面这种格式返回给用户：
         [
             {{
                 "id": 1,
                 "name": "Market A",
-                "lx": 3,
-                "ly": 4,
-                "lz": 5
+                "room":401
             }},
             {{
                 "id": 2,
                 "name": "Market B",
-                "lx": 3,
-                "ly": 4,
-                "lz": 5
+                "room":401
             }},
             {{
                 "id": 3,
                 "name": "Market C",
-                "lx": 3,
-                "ly": 4,
-                "lz": 5
+                "room":401
             }},
             {{
                 "id": 4,
                 "name": "Market D",
-                "lx": 3,
-                "ly": 4,
-                "lz": 5
+                "room":401
             }},
         ]
-        请注意，不要输出换行符
+        请注意，请你严格按照列表中的顺序查找书的对应房间号。并且不要输出换行符
         如果没有找到相关的书籍，请你返回一个空的列表。
         除此之外，不需要你返回其他任何信息"""
         
