@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.cm as cm
 import random
+import kNN
 jsondatas=[]
 lables=[]
 torch.cuda.empty_cache()
@@ -47,65 +48,24 @@ for k in macs_tmp:
 
 print("start_eval")
 
-modelx=torch.load('./DNN/modelx.pth')
-modely=torch.load('./DNN/modely.pth')
-modelz=torch.load('./DNN/modelz.pth')
 
+knn=kNN.kNN()
+knn.build()
+# knn.classify_()
 
 # fig, ax = plt.subplots()
 resdict={}
 
 for i,datai in enumerate(jsondatas):
-    input_tmp=[-127 for i in range(dim)]
-    inputmacs=datai[0]
-    inputstr=datai[1]
-    for j,maci in enumerate(macs):
-        if maci in inputmacs:
-            input_tmp[j]=inputstr[inputmacs.index(maci)]
-    for j,_ in enumerate(input_tmp):
-        input_tmp[j]=input_tmp[j]*-0.005
-    pre_x=modelx.predict(input_tmp)
-    pre_y=modely.predict(input_tmp)
-    pre_z=modelz.predict(input_tmp)
+    jsondic={"mac_list":datai[0],"mac_strength":datai[1]}
+    pre_x,pre_y,pre_z=knn.classify_(jsondic)
+    
     print(f"pre_x:{pre_x} pre_y:{pre_y} pre_z:{pre_z}")
     print(f"lable:{lables[i]}")
     if lables[i] not in resdict:
         resdict[lables[i]] = []
     resdict[lables[i]].append((pre_x,pre_y))
 
-
-# import matplotlib.pyplot as plt
-# import numpy as np
-# import matplotlib.cm as cm
-
-# # 定义颜色和标记样式
-# colors = cm.rainbow(np.linspace(0, 1, len(resdict)))
-# markers = ['o', '^']
-
-# # 遍历resdict中的每一个键
-# for i, key in enumerate(resdict):
-#     # 创建一个新的figure
-#     fig, ax = plt.subplots()
-#     ax.set_title(f"DNN:{key}")
-
-#     # 设置x和y轴的范围
-#     ax.set_xlim([-0.2, 4.2])
-#     ax.set_ylim([-0.2, 3.2])
-
-#     # 画出键的位置，用大圆点表示
-#     ax.scatter(key[0], key[1], color=colors[i], marker=markers[0], s=100)
-
-#     # 遍历键对应的列表，画出每个点的位置，用小三角形表示
-#     for point in resdict[key]:
-#         offset_x = random.uniform(-0.5, 0.5)
-#         offset_y = random.uniform(-0.5, 0.5)
-#         ax.scatter(point[0]+offset_x, point[1]+offset_y, color=colors[i], marker=markers[1], s=50)
-
-#     # 保存图片到当前目录，文件名为'output_key.png'
-#     print(i,end='')
-#     plt.savefig(f'./figs/output_{key}.png')
-
-#     plt.close(fig)  # 关闭figure，释放内存
 
 
 import numpy as np
@@ -168,7 +128,47 @@ for label, predictions in resdict.items():
         plt.grid(True)
         plt.tight_layout() 
         plt.show()
-        plt.savefig(f'./cdf/output_{cnt}.png')
+        plt.savefig(f'./knncdf/output_{cnt}.png')
         plt.figure(figsize=(15, 10))
 
 print(len(resdict))
+
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import matplotlib.cm as cm
+
+# # 定义颜色和标记样式
+# colors = cm.rainbow(np.linspace(0, 1, len(resdict)))
+# markers = ['o', '^']
+
+# # 遍历resdict中的每一个键
+# for i, key in enumerate(resdict):
+#     # 创建一个新的figure
+#     fig, ax = plt.subplots()
+#     ax.set_title(f"KNN:{key}")
+
+#     # 设置x和y轴的范围
+#     ax.set_xlim([-0.2, 4.2])
+#     ax.set_ylim([-0.2, 3.2])
+
+#     # 画出键的位置，用大圆点表示
+#     ax.scatter(key[0], key[1], color=colors[i], marker=markers[0], s=100)
+
+#     # 遍历键对应的列表，画出每个点的位置，用小三角形表示
+#     for point in resdict[key]:
+#         offset_x = random.uniform(-0.5, 0.5)
+#         offset_y = random.uniform(-0.5, 0.5)
+#         ax.scatter(point[0]+offset_x, point[1]+offset_y, color=colors[i], marker=markers[1], s=50)
+
+#     # 保存图片到当前目录，文件名为'output_key.png'
+#     print(i,end='')
+#     plt.savefig(f'./knnfigs/output_{key}.png')
+
+#     plt.close(fig)  # 关闭figure，释放内存
+
+
+
+
+
+

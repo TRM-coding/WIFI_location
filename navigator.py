@@ -100,6 +100,7 @@ class navigator:
             #             q.append(new)
         road=[]
         if(t==s):
+            print("t==s")
             return road
         t=pre[t]
         while(t!=s):

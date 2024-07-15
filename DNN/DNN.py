@@ -175,11 +175,22 @@ class DNN(nn.Module):
 
 
         # torch.save(self.state_dict(),'./model.pth')
-        plt.figure()
-        plt.plot(range(epochs), loss_list)
-        plt.title('Training Loss Curve')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
+        fig, ax1 = plt.subplots()
+
+        color = 'tab:red'
+        ax1.set_xlabel('Epoch')
+        ax1.set_ylabel('Loss', color=color)
+        ax1.plot(range(epochs), loss_list, color=color)
+        ax1.tick_params(axis='y', labelcolor=color)
+
+        ax2 = ax1.twinx()  
+        color = 'tab:blue'
+        ax2.set_ylabel('Accuracy', color=color)  
+        ax2.plot(range(epochs), acc_list, color=color, linestyle='--')
+        ax2.tick_params(axis='y', labelcolor=color)
+
+        fig.tight_layout()  
+        plt.title('Training Loss and Accuracy Curve')
         plt.show()
         return loss_list, acc_list
         # plt.savefig('./loss_curve.png')

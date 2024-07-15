@@ -1,6 +1,6 @@
 import json
 
-with open('./415s.json', 'r') as f:
+with open('./test.json', 'r') as f:
     data_list = []
     for line in f:
         json_obj = json.loads(line)
@@ -11,5 +11,6 @@ with open('./415s.json', 'r') as f:
     unique_list = list(map(json.loads, data_set))
 
 # 将去重后的数据写入新的JSON文件
-with open('./415s_unique.json', 'w') as f:
-    json.dump(unique_list, f, indent=4)
+with open('./test_unique.json', 'w') as f:
+    for item in unique_list:
+        f.write(json.dumps(item) + '\n')

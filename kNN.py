@@ -126,7 +126,7 @@ class kNN():
         for i in range(self.k):
             # sql='select locx,locy,locz from locationdata where locid=%s'
             sql='select room from locationdata4 where locid=%s'
-            cursor.execute(sql,sortedDistIndicies[i])
+            cursor.execute(sql,sortedDistIndicies[i]+1)
             result=cursor.fetchall()
             cnt[result[0][0]]=cnt.get(result[0][0],0)+1
         # ans={'x':result[0][0],'y':result[0][1],'z':result[0][2]}
@@ -196,7 +196,7 @@ class kNN():
         for i in range(self.k_):
             # sql='select locx,locy,locz from locationdata where locid=%s'
             sql='select x,y,z from locationdata3 where locid=%s'
-            cursor.execute(sql,sortedDistIndicies[i])
+            cursor.execute(sql,sortedDistIndicies[i]+1)
             result=cursor.fetchall()
             cnt[result[0]]=cnt.get(result[0],0)+1
         # ans={'x':result[0][0],'y':result[0][1],'z':result[0][2]}
